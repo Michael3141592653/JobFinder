@@ -32,6 +32,8 @@ After changing the schema, add a migration with `uv run alembic revision -m "<wh
 | raw job | one job as a provider's API returns it, before mapping | `_GreenhouseRawJob`, `_LeverRawJob` |
 | job | a raw job mapped to our common shape, the same for every provider | `Job` |
 | job source fetch result | the outcome of fetching one job source: its jobs, or why it failed | `JobSourceFetchResult` |
+| update | one run of the app: fetch every job source, store the jobs, delete long-closed ones | `JobUpdater.update` |
+| source update | one job source after an update: its fetch result and how many of its jobs are new | `SourceUpdate` |
 | company | a job source as stored in the database, with its display name and last fetch error | `companies` table |
 | first seen / last seen | the first and latest run that found a job; a job is new when first seen in this run | `first_seen`, `last_seen` |
 | closed job | a job missing from its source's latest successful fetch; deleted after 30 days | `closed_at`, `delete_closed_jobs` |

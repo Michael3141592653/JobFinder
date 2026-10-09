@@ -1,6 +1,5 @@
 import argparse
 import asyncio
-from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import psycopg
@@ -12,9 +11,7 @@ from jobfinder.fetcher import JobFetcher
 from jobfinder.http_client import HttpClient
 from jobfinder.providers import PROVIDERS
 from jobfinder.schema import Job, JobSource, JobSourceFetchResult
-
-# ponytail: fixed retention; make it a setting if someone needs closed jobs for longer.
-KEEP_CLOSED_JOBS = timedelta(days=30)
+from jobfinder.updater import JobUpdater, SourceUpdate
 
 
 def _print_jobs(jobs: list[Job]) -> None:
@@ -27,17 +24,18 @@ def _failure_line(result: JobSourceFetchResult) -> str:
     return f"{result.source}: FAILED: {result.error}"
 
 
-def _status_line(result: JobSourceFetchResult, new_job_count: int) -> str:
-    if result.error:
-        return _failure_line(result)
-    return f"{result.source}: {len(result.jobs)} jobs ({new_job_count} new)"
+def _status_line(update: SourceUpdate) -> str:
+    if update.result.error:
+        return _failure_line(update.result)
+    return f"{update.result.source}: {len(update.result.jobs)} jobs ({update.new_job_count} new)"
 
 
-def _print_summary(results: list[JobSourceFetchResult], new_job_counts: list[int]) -> None:
-    for result, new_job_count in zip(results, new_job_counts, strict=True):
-        print(_status_line(result, new_job_count))
-    job_count = sum(len(result.jobs) for result in results)
-    print(f"{job_count} jobs total ({sum(new_job_counts)} new)")
+def _print_summary(updates: list[SourceUpdate]) -> None:
+    for update in updates:
+        print(_status_line(update))
+    job_count = sum(len(update.result.jobs) for update in updates)
+    new_job_count = sum(update.new_job_count for update in updates)
+    print(f"{job_count} jobs total ({new_job_count} new)")
 
 
 async def _fetch_all_jobs(sources: list[JobSource]) -> list[JobSourceFetchResult]:
@@ -45,21 +43,18 @@ async def _fetch_all_jobs(sources: list[JobSource]) -> list[JobSourceFetchResult
         return await JobFetcher(http).fetch_all(sources)
 
 
-def _store_results(store: JobStore, results: list[JobSourceFetchResult]) -> list[int]:
-    """Save every result and return each source's count of new jobs."""
-    seen_at = datetime.now(UTC)
-    new_job_counts = [store.save(result, seen_at) for result in results]
-    store.delete_closed_jobs(closed_before=seen_at - KEEP_CLOSED_JOBS)
-    return new_job_counts
+async def _update_jobs(sources: list[JobSource]) -> list[SourceUpdate]:
+    # Connect before fetching: a missing .env or a stopped Postgres fails before the slow part.
+    with psycopg.connect(database_url()) as connection:
+        async with HttpClient() as http:
+            updater = JobUpdater(JobFetcher(http), JobStore(connection))
+            return await updater.update(sources)
 
 
 def _cmd_run(args: argparse.Namespace) -> None:
     config = SourcesConfig.from_toml(args.sources_file)
-    # Connect before fetching: a missing .env or a stopped Postgres fails before the slow part.
-    with psycopg.connect(database_url()) as connection:
-        results = asyncio.run(_fetch_all_jobs(config.sources()))
-        new_job_counts = _store_results(JobStore(connection), results)
-    _print_summary(results, new_job_counts)
+    updates = asyncio.run(_update_jobs(config.sources()))
+    _print_summary(updates)
 
 
 def _cmd_fetch(args: argparse.Namespace) -> None:
