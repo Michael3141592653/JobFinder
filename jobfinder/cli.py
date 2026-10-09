@@ -15,16 +15,15 @@ def _print_jobs(jobs: list[Job]) -> None:
     print(f"{len(jobs)} jobs")
 
 
+def _status_line(result: FetchResult) -> str:
+    status = f"FAILED: {result.error}" if result.error else f"{len(result.jobs)} jobs"
+    return f"{result.source}: {status}"
+
+
 def _print_summary(results: list[FetchResult]) -> None:
     for result in results:
-        status = f"FAILED: {result.error}" if result.error else f"{len(result.jobs)} jobs"
-        print(f"{result.source}: {status}")
+        print(_status_line(result))
     print(f"{sum(len(result.jobs) for result in results)} jobs total")
-
-
-async def _fetch_source_jobs(source: JobSource) -> FetchResult:
-    async with HttpClient() as http:
-        return await JobFetcher(http).fetch_source(source)
 
 
 async def _fetch_all_jobs(sources: list[JobSource]) -> list[FetchResult]:
@@ -39,9 +38,9 @@ def _cmd_run(args: argparse.Namespace) -> None:
 
 
 def _cmd_fetch(args: argparse.Namespace) -> None:
-    result = asyncio.run(_fetch_source_jobs(JobSource(args.provider, args.slug)))
+    [result] = asyncio.run(_fetch_all_jobs([JobSource(args.provider, args.slug)]))
     if result.error:
-        print(f"{result.source}: FAILED: {result.error}")
+        print(_status_line(result))
     else:
         _print_jobs(result.jobs)
 

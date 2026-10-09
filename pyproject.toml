@@ -1,7 +1,7 @@
 [project]
 name = "jobfinder"
 version = "0.1.0"
-description = "Personal job finder: ingest ATS boards, rank, digest."
+description = "Personal job finder: fetch jobs from ATS providers, rank, digest."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
