@@ -9,6 +9,8 @@ from pydantic import RootModel, field_validator
 from jobfinder.providers import PROVIDERS
 from jobfinder.schema import JobSource
 
+SOURCES_FILE = Path("sources.toml")  # relative: the folder the app starts in
+
 
 class SourcesConfig(RootModel[dict[str, list[str]]]):
     """The sources file's content: provider name -> slugs, e.g. greenhouse = ["datadog"]."""

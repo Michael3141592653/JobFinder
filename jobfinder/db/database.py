@@ -8,15 +8,15 @@ import psycopg
 
 from jobfinder.db.queries import load_query
 from jobfinder.db.session import DatabaseSession
-from jobfinder.db.settings import database_url
+from jobfinder.settings import database_url
 
 CHECK_TIMEOUT_SECONDS = 10  # without it, an unreachable server can hang for minutes on Windows
-_TRY_LOCK_UPDATES = load_query("try_lock_updates")
+_TRY_LOCK_REFRESHES = load_query("try_lock_refreshes")
 
 
-class UpdateAlreadyRunningError(RuntimeError):
+class RefreshAlreadyRunningError(RuntimeError):
     def __init__(self) -> None:
-        super().__init__("another update is running: try again when it is done")
+        super().__init__("another refresh is running: try again when it is done")
 
 
 class Database:
@@ -43,18 +43,18 @@ class Database:
             yield session
 
     @contextmanager
-    def update_session(self) -> Generator[DatabaseSession]:
-        """A session that only one update holds at a time, across processes and machines. Hold it
+    def refresh_session(self) -> Generator[DatabaseSession]:
+        """A session that only one refresh holds at a time, across processes and machines. Hold it
         from before the fetch until after the commit, so an older fetch can never be stored over
-        a newer one. Fails right away if another update holds it: that one is already fetching.
+        a newer one. Fails right away if another refresh holds it: that one is already fetching.
         """
         # The lock and the writes share one connection: if it drops, Postgres releases the lock,
         # and the same dead connection can no longer write, so a run that lost the lock never
         # commits. The lock is taken in autocommit, so no transaction is open during the fetch.
         with psycopg.connect(self._url, autocommit=True) as connection:
-            [lock_taken] = connection.execute(_TRY_LOCK_UPDATES).fetchone()
+            [lock_taken] = connection.execute(_TRY_LOCK_REFRESHES).fetchone()
             if not lock_taken:
-                raise UpdateAlreadyRunningError
+                raise RefreshAlreadyRunningError
             connection.autocommit = False  # from here, the session's work is one transaction
             with DatabaseSession(connection) as session:
                 yield session

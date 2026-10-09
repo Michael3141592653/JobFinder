@@ -3,7 +3,7 @@
 from alembic import context
 from sqlalchemy import URL, create_engine, make_url, pool
 
-from jobfinder.db.settings import database_url
+from jobfinder.settings import database_url
 
 
 def _sqlalchemy_url() -> URL:

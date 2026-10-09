@@ -6,17 +6,17 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.0",
+    "fastapi>=0.143.0",
     "httpx>=0.28.1",
     "psycopg[binary]>=3.3.6",
     "pydantic>=2.14.0",
     "tenacity>=9.2.1",
+    "uvicorn>=0.54.0",
 ]
-
-[project.scripts]
-jobfinder = "jobfinder.cli:main"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.13.1",
     "pytest",
     "ruff",
     "sqlfluff>=4.4.0",

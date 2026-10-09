@@ -28,44 +28,44 @@ class JobStore:
         self._connection = connection
 
     def _save_company(
-        self, source: JobSource, update_time: datetime, name: str | None, error: str | None
+        self, source: JobSource, refresh_time: datetime, name: str | None, error: str | None
     ) -> int:
         params = {
             "provider": source.provider,
             "slug": source.slug,
             "name": name,
-            "update_time": update_time,
+            "refresh_time": refresh_time,
             "error": error,
         }
         [company_id] = self._connection.execute(_SAVE_COMPANY, params).fetchone()
         return company_id
 
-    def _save_jobs(self, company_id: int, jobs: list[Job], update_time: datetime) -> None:
-        run_params = {"company_id": company_id, "update_time": update_time}
+    def _save_jobs(self, company_id: int, jobs: list[Job], refresh_time: datetime) -> None:
+        run_params = {"company_id": company_id, "refresh_time": refresh_time}
         params = [job.model_dump() | run_params for job in jobs]
         self._connection.cursor().executemany(_SAVE_JOB, params)
 
-    def _close_missing_jobs(self, company_id: int, update_time: datetime) -> None:
-        params = {"company_id": company_id, "update_time": update_time}
+    def _close_missing_jobs(self, company_id: int, refresh_time: datetime) -> None:
+        params = {"company_id": company_id, "refresh_time": refresh_time}
         self._connection.execute(_CLOSE_MISSING_JOBS, params)
 
-    def _count_new_jobs(self, company_id: int, update_time: datetime) -> int:
-        params = {"company_id": company_id, "update_time": update_time}
+    def _count_new_jobs(self, company_id: int, refresh_time: datetime) -> int:
+        params = {"company_id": company_id, "refresh_time": refresh_time}
         [new_job_count] = self._connection.execute(_COUNT_NEW_JOBS, params).fetchone()
         return new_job_count
 
-    def save(self, result: JobSourceFetchResult, update_time: datetime) -> int:
+    def save(self, result: JobSourceFetchResult, refresh_time: datetime) -> int:
         """Store one source's fetch and return how many of its jobs are new.
 
         A failed fetch only records the error: its jobs stay open, since they weren't checked.
         """
         name = _company_name(result.jobs)
-        company_id = self._save_company(result.source, update_time, name, result.error)
+        company_id = self._save_company(result.source, refresh_time, name, result.error)
         if result.error:
             return 0
-        self._save_jobs(company_id, result.jobs, update_time)
-        self._close_missing_jobs(company_id, update_time)
-        return self._count_new_jobs(company_id, update_time)
+        self._save_jobs(company_id, result.jobs, refresh_time)
+        self._close_missing_jobs(company_id, refresh_time)
+        return self._count_new_jobs(company_id, refresh_time)
 
     def database_time(self) -> datetime:
         """The database's clock, shared by every machine, unlike each machine's own clock."""

@@ -4,7 +4,7 @@ import psycopg
 import pytest
 from psycopg.conninfo import make_conninfo
 
-from jobfinder.db.database import Database, UpdateAlreadyRunningError
+from jobfinder.db.database import Database, RefreshAlreadyRunningError
 from jobfinder.schema import JobSource, JobSourceFetchResult
 
 # A failed fetch is the smallest save: it writes only the company row.
@@ -61,40 +61,40 @@ def test_database_from_env_without_url_fails(monkeypatch):
         Database.from_env()
 
 
-def _drop_the_update_lock_connection(database_url: str) -> None:
-    """Ends the connection holding the update lock, as a Postgres restart or network drop would."""
+def _drop_the_refresh_lock_connection(database_url: str) -> None:
+    """Ends the connection holding the refresh lock, as a Postgres restart or network drop would."""
     with psycopg.connect(database_url, autocommit=True) as other_connection:
         other_connection.execute(
             "SELECT PG_TERMINATE_BACKEND(pid) FROM pg_locks WHERE locktype = 'advisory' AND granted"
         )
 
 
-def _save_after_losing_the_update_lock(database_url: str) -> None:
-    with Database(database_url).update_session() as session:
-        _drop_the_update_lock_connection(database_url)
+def _save_after_losing_the_refresh_lock(database_url: str) -> None:
+    with Database(database_url).refresh_session() as session:
+        _drop_the_refresh_lock_connection(database_url)
         session.jobs.save(FAILED_FETCH, NOW)
         session.commit()
 
 
-def test_update_session_while_another_update_holds_it_fails(database_url):
+def test_refresh_session_while_another_refresh_holds_it_fails(database_url):
     database = Database(database_url)
 
-    with database.update_session(), pytest.raises(UpdateAlreadyRunningError):  # noqa: SIM117
-        with database.update_session():
+    with database.refresh_session(), pytest.raises(RefreshAlreadyRunningError):  # noqa: SIM117
+        with database.refresh_session():
             pass
 
 
-def test_update_session_is_free_again_after_the_update(database_url):
+def test_refresh_session_is_free_again_after_the_refresh(database_url):
     database = Database(database_url)
-    with database.update_session():
+    with database.refresh_session():
         pass
 
-    with database.update_session():
-        pass  # taken again: no UpdateAlreadyRunningError
+    with database.refresh_session():
+        pass  # taken again: no RefreshAlreadyRunningError
 
 
-def test_update_session_that_lost_its_lock_cannot_save(database_url):
+def test_refresh_session_that_lost_its_lock_cannot_save(database_url):
     with pytest.raises(psycopg.OperationalError):
-        _save_after_losing_the_update_lock(database_url)
+        _save_after_losing_the_refresh_lock(database_url)
 
     assert _committed_company_count(database_url) == 0

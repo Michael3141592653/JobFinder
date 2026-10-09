@@ -15,8 +15,9 @@ db-up:
 db-migrate:
     uv run alembic upgrade head
 
-run *args:
-    uv run python -m jobfinder run {{args}}
+# serve the API on http://localhost:8000 (docs at /docs), reloading on code changes
+run-api:
+    uv run uvicorn jobfinder.main:app_from_env --factory --reload
 
 test *args:
     uv run pytest {{args}}

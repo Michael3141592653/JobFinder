@@ -20,8 +20,8 @@ VALUES (
     %(description)s,
     %(posted_at)s,
     %(updated_at)s,
-    %(update_time)s,
-    %(update_time)s
+    %(refresh_time)s,
+    %(refresh_time)s
 )
 ON CONFLICT (company_id, provider_job_id) DO UPDATE
     SET
