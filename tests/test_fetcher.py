@@ -5,8 +5,8 @@ import httpx
 import pytest
 from tenacity import wait_none
 
+from jobfinder.fetcher import BoardFetcher, FetchResult
 from jobfinder.http_client import HttpClient
-from jobfinder.ingest import BoardResult, Ingestor
 from jobfinder.schema import Board
 
 FIXTURES = Path(__file__).parent / "sources" / "fixtures"
@@ -28,11 +28,11 @@ def _fake_server(request: httpx.Request) -> httpx.Response:
     return httpx.Response(200, content=response_body)
 
 
-def _fetch_all(boards: list[Board]) -> list[BoardResult]:
-    async def run_against_fake_server() -> list[BoardResult]:
+def _fetch_all(boards: list[Board]) -> list[FetchResult]:
+    async def run_against_fake_server() -> list[FetchResult]:
         transport = httpx.MockTransport(_fake_server)
         async with HttpClient(transport=transport, retry_wait=wait_none()) as http:
-            return await Ingestor(http).fetch_all(boards)
+            return await BoardFetcher(http).fetch_all(boards)
 
     return asyncio.run(run_against_fake_server())
 

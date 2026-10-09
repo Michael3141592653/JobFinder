@@ -12,25 +12,27 @@ from jobfinder.sources import SOURCES
 
 
 @dataclass
-class BoardResult:
+class FetchResult:
+    """The outcome of fetching one board: its jobs, or why it failed."""
+
     board: Board
     jobs: list[Job] = field(default_factory=list)
     error: str | None = None
 
 
-class Ingestor:
+class BoardFetcher:
     """Fetches boards from every source through one shared HttpClient."""
 
     def __init__(self, http: HttpClient) -> None:
         self._sources = {name: source_class(http) for name, source_class in SOURCES.items()}
 
-    async def fetch_board(self, board: Board) -> BoardResult:
+    async def fetch_board(self, board: Board) -> FetchResult:
         try:
             jobs = await self._sources[board.source].fetch(board.slug)
         except (httpx.HTTPError, ValidationError) as error:
-            return BoardResult(board, error=str(error).splitlines()[0])
-        return BoardResult(board, jobs=jobs)
+            return FetchResult(board, error=str(error).splitlines()[0])
+        return FetchResult(board, jobs=jobs)
 
-    async def fetch_all(self, boards: list[Board]) -> list[BoardResult]:
+    async def fetch_all(self, boards: list[Board]) -> list[FetchResult]:
         board_fetches = [self.fetch_board(board) for board in boards]
         return await asyncio.gather(*board_fetches)

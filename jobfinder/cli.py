@@ -3,8 +3,8 @@ import asyncio
 from pathlib import Path
 
 from jobfinder.config import BoardsConfig
+from jobfinder.fetcher import BoardFetcher, FetchResult
 from jobfinder.http_client import HttpClient
-from jobfinder.ingest import BoardResult, Ingestor
 from jobfinder.schema import Board, Job
 from jobfinder.sources import SOURCES
 
@@ -15,21 +15,21 @@ def _print_jobs(jobs: list[Job]) -> None:
     print(f"{len(jobs)} jobs")
 
 
-def _print_summary(results: list[BoardResult]) -> None:
+def _print_summary(results: list[FetchResult]) -> None:
     for result in results:
         status = f"FAILED: {result.error}" if result.error else f"{len(result.jobs)} jobs"
         print(f"{result.board}: {status}")
     print(f"{sum(len(result.jobs) for result in results)} jobs total")
 
 
-async def _download_board(board: Board) -> BoardResult:
+async def _download_board(board: Board) -> FetchResult:
     async with HttpClient() as http:
-        return await Ingestor(http).fetch_board(board)
+        return await BoardFetcher(http).fetch_board(board)
 
 
-async def _download_all(boards: list[Board]) -> list[BoardResult]:
+async def _download_all(boards: list[Board]) -> list[FetchResult]:
     async with HttpClient() as http:
-        return await Ingestor(http).fetch_all(boards)
+        return await BoardFetcher(http).fetch_all(boards)
 
 
 def _cmd_run(args: argparse.Namespace) -> None:
