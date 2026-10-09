@@ -9,6 +9,8 @@ import psycopg
 from jobfinder.db.session import DatabaseSession
 from jobfinder.db.settings import database_url
 
+CHECK_TIMEOUT_SECONDS = 10  # without it, an unreachable server can hang for minutes on Windows
+
 
 class Database:
     """Where database sessions come from. Long-lived: one per app, reused for every session."""
@@ -20,6 +22,10 @@ class Database:
     def from_env(cls) -> Self:
         """The database in $DATABASE_URL; fails right away if it is not set."""
         return cls(database_url())
+
+    def check(self) -> None:
+        """Fail now if the database can't be reached, e.g. before a slow fetch."""
+        psycopg.connect(self._url, connect_timeout=CHECK_TIMEOUT_SECONDS).close()
 
     @contextmanager
     def session(self) -> Iterator[DatabaseSession]:

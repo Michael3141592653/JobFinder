@@ -41,7 +41,8 @@ async def _fetch_source(source: JobSource) -> JobSourceFetchResult:
 
 
 async def _update_jobs(sources: list[JobSource]) -> list[SourceUpdate]:
-    database = Database.from_env()  # fails right away if DATABASE_URL is not set
+    database = Database.from_env()
+    database.check()  # fail before the slow fetch if DATABASE_URL is missing or Postgres is down
     async with HttpClient() as http:
         return await JobUpdater(JobFetcher(http), database).update(sources)
 
