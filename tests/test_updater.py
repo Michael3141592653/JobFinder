@@ -57,6 +57,6 @@ def test_update_while_another_update_runs_fails_before_fetching(database_url):
         async with HttpClient(transport=recording_transport, retry_wait=wait_none()) as http:
             await JobUpdater(JobFetcher(http), database).update([DATADOG])
 
-    with database.update_lock(), pytest.raises(UpdateAlreadyRunningError):
+    with database.update_session(), pytest.raises(UpdateAlreadyRunningError):
         asyncio.run(update_while_another_runs())
     assert requests == []

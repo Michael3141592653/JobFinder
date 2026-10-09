@@ -40,9 +40,8 @@ class JobUpdater:
     async def update(self, sources: list[JobSource]) -> list[SourceUpdate]:
         """Fetch, then store everything in one transaction, committed only once all of it is done:
         a crash halfway saves nothing. Fails with UpdateAlreadyRunningError if one is running."""
-        with self._database.update_lock():
+        with self._database.update_session() as session:
             results = await self._fetcher.fetch_all(sources)
-            with self._database.session() as session:  # only around the database work
-                updates = self._store_results(session.jobs, results)
-                session.commit()
+            updates = self._store_results(session.jobs, results)
+            session.commit()
         return updates
