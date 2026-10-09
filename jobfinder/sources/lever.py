@@ -4,7 +4,7 @@ import html
 from datetime import datetime
 
 import httpx
-from pydantic import BaseModel, ConfigDict, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 from pydantic.alias_generators import to_camel
 
 from jobfinder.schema import Job
@@ -20,19 +20,19 @@ class _Categories(BaseModel):
 
 
 class _Section(BaseModel):
-    text: str  # heading, e.g. "What You'll Do"
+    heading: str = Field(alias="text")  # e.g. "What You'll Do"
     content: str  # HTML list items
 
 
 def _section_html(section: _Section) -> str:
-    return f"<h3>{html.escape(section.text)}</h3><ul>{section.content}</ul>"
+    return f"<h3>{html.escape(section.heading)}</h3><ul>{section.content}</ul>"
 
 
 class LeverJob(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, str_strip_whitespace=True)
 
     id: str
-    text: str  # the job title
+    title: str = Field(alias="text")
     hosted_url: str
     categories: _Categories
     created_at: datetime  # sent as milliseconds since epoch
@@ -49,7 +49,7 @@ class LeverJob(BaseModel):
             source="lever",
             source_id=self.id,
             company=company,
-            title=self.text,
+            title=self.title,
             locations=self.categories.all_locations,
             url=self.hosted_url,
             description=html_to_text(self._full_description_html()),
