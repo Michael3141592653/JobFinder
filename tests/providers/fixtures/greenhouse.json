@@ -1,0 +1,316 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://careers.datadoghq.com/detail/8257324/?gh_jid=8257324",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 3573058,
+      "location": {
+        "name": "New York, New York, USA"
+      },
+      "metadata": [
+        {
+          "id": 33310,
+          "name": "Time Type",
+          "value": "Full time",
+          "value_type": "single_select"
+        },
+        {
+          "id": 166208,
+          "name": "Area - Engineering",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 498252,
+          "name": "Cost Center",
+          "value": "General and Administrative - Finance",
+          "value_type": "single_select"
+        },
+        {
+          "id": 516515,
+          "name": "Geography",
+          "value": "North America",
+          "value_type": "single_select"
+        },
+        {
+          "id": 9593635,
+          "name": "Early Career Time Type",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 29446322,
+          "name": "Pay Transparency Range",
+          "value": {
+            "unit": "USD",
+            "max_value": "79000.0",
+            "min_value": "59000.0"
+          },
+          "value_type": "currency_range"
+        },
+        {
+          "id": 31273219,
+          "name": "Does this role require access to ITAR-controlled data?",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 58619948,
+          "name": "IC or MG",
+          "value": "IC",
+          "value_type": "single_select"
+        }
+      ],
+      "id": 8257324,
+      "updated_at": "2026-10-06T10:42:08-04:00",
+      "requisition_id": "R21943",
+      "title": "Accounts Payable Analyst",
+      "company_name": "Datadog",
+      "first_published": "2026-10-06T10:42:08-04:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;h2&gt;&lt;strong&gt;About the Role&lt;/strong&gt;&lt;/h2&gt;\n&lt;p&gt;Datadog is looking for a full-time Accounts Payable Analyst to join our rapidly growing Finance team. Reporting to the Manager, Accounts Payable, you will own the accurate and timely processing of domestic and international vendor invoices and payments, and serve as a trusted liaison between our vendors and internal teams. You will work independently on routine issues, apply professional AP concepts and tools to solve problems, and build a deep understanding of our systems and processes. You will also play a hands-on role in month-end close, audit support, and employee expense review as a T&amp;amp;E approver.&lt;/p&gt;\n&lt;h2&gt;&lt;strong&gt;What You&#39;ll Do&lt;/strong&gt;&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Review and process vendor invoices accurately and on time, across regions and currencies&lt;/li&gt;\n&lt;li&gt;Ensure proper supporting documentation is in place and maintained in accordance with company policy and accepted accounting practices&lt;/li&gt;\n&lt;li&gt;Support vendor payment and vendor onboarding processes&lt;/li&gt;\n&lt;li&gt;Research and resolve payment and invoice discrepancies, and reconcile vendor accounts to resolve variances&lt;/li&gt;\n&lt;li&gt;Act as a liaison for vendors and internal teams, resolving inquiries and issues&lt;/li&gt;\n&lt;li&gt;Support the month-end close process, including AP close and accruals&lt;/li&gt;\n&lt;li&gt;Approve T&amp;amp;E expense reports and confirm they adhere to company expense policy&lt;/li&gt;\n&lt;li&gt;Assist with internal and external audit requests, including preparing requested documentation&lt;/li&gt;\n&lt;li&gt;Take on ad hoc projects as the team&#39;s needs evolve&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;&lt;strong&gt;What You&#39;ll Bring&lt;/strong&gt;&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;You hold a Bachelor&#39;s degree and have 2-4 years of relevant accounts payable experience&lt;/li&gt;\n&lt;li&gt;You apply professional accounting concepts and tools to solve problems, and you understand the systems and processes behind them deeply&lt;/li&gt;\n&lt;li&gt;You handle moderately complex tasks and work independently on routine issues with general guidance&lt;/li&gt;\n&lt;li&gt;You consistently deliver accurate work and meet deadlines, and you manage competing priorities in a fast-paced environment&lt;/li&gt;\n&lt;li&gt;You bring strong problem-solving skills and sound judgment&lt;/li&gt;\n&lt;li&gt;You communicate clearly with vendors and internal stakeholders across functions, geographies, and all levels of management&lt;/li&gt;\n&lt;li&gt;You are strongly proficient in Excel&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p style=&quot;color: white;&quot;&gt;#LI-Hybrid&lt;/p&gt;&lt;div class=&quot;content-pay-transparency&quot;&gt;&lt;div class=&quot;pay-input&quot;&gt;&lt;div class=&quot;description&quot;&gt;&lt;p&gt;Datadog offers a competitive salary and equity package, and may include variable compensation. Actual compensation is based on factors such as the candidate&#39;s skills, qualifications, and experience. In addition, Datadog offers a wide range of best in class, comprehensive and inclusive employee benefits for this role including healthcare, dental, parental planning, and mental health benefits, a 401(k) plan and match, paid time off, fitness reimbursements, and a discounted employee stock purchase plan.&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;title&quot;&gt;The reasonably estimated yearly salary for this role at Datadog is:&lt;/div&gt;&lt;div class=&quot;pay-range&quot;&gt;&lt;span&gt;$59,000&lt;/span&gt;&lt;span class=&quot;divider&quot;&gt;&amp;mdash;&lt;/span&gt;&lt;span&gt;$79,000 USD&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p&gt;&lt;strong&gt;About Datadog:&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is the leading observability and security platform for the AI era, providing businesses with unified visibility across the technology stack to manage complexity at scale. It brings applications, infrastructure, data, models, and security into one place, using AI to detect and resolve issues before they impact customers. Trusted globally by Fortune 500 companies and high-growth AI leaders, Datadog enables businesses to move faster with clarity and confidence. Learn more about #DatadogLife on &lt;a href=&quot;https://www.instagram.com/datadoghq/?hl=en&quot; target=&quot;_blank&quot;&gt;Instagram&lt;/a&gt;, &lt;a href=&quot;https://www.linkedin.com/company/datadog&quot; target=&quot;_blank&quot;&gt;LinkedIn,&lt;/a&gt; and &lt;a href=&quot;https://learn.datadoghq.com/&quot; target=&quot;_blank&quot;&gt;Datadog Learning Center. &lt;/a&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p data-renderer-start-pos=&quot;215&quot;&gt;&lt;strong data-renderer-mark=&quot;true&quot;&gt;Equal Opportunity at Datadog:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is proud to offer &lt;a href=&quot;https://www.eeoc.gov/sites/default/files/2023-06/22-088_EEOC_KnowYourRights6.12ScreenRdr.pdf&quot; target=&quot;_blank&quot;&gt;equal employment opportunity&lt;/a&gt; to everyone regardless of race, color, ancestry, religion, sex, national origin, sexual orientation, age, citizenship, marital status, disability, gender identity, veteran status, and other characteristics protected by law. We also consider qualified applicants regardless of criminal histories, consistent with legal requirements. Here are our &lt;a href=&quot;https://www.datadoghq.com/legal/candidate-legal-notices/&quot; target=&quot;_blank&quot;&gt;Candidate Legal Notices&lt;/a&gt; for your reference.&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;Datadog endeavors to make our Careers Page accessible to all users. If you would like to contact us regarding the accessibility of our website or need assistance completing the application process, please complete &lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSeoJeduEZ2NdZF_65uZmWUrCM-zee7yADXX1s6Xr9zAGq8iKA/viewform&quot; target=&quot;_blank&quot;&gt;this form&lt;/a&gt;. This form is for accommodation requests only and cannot be used to inquire about the status of applications.&amp;nbsp;&lt;/p&gt;\n&lt;p data-renderer-start-pos=&quot;662&quot;&gt;&lt;strong data-renderer-mark=&quot;true&quot;&gt;Privacy and AI Guidelines:&lt;/strong&gt;&lt;/p&gt;\n&lt;p data-renderer-start-pos=&quot;662&quot;&gt;Any information you submit to Datadog as part of your application will be processed in accordance with Datadog’s&amp;nbsp;&lt;a class=&quot;c-link&quot; href=&quot;https://www.datadoghq.com/legal/applicant-candidate-privacy/&quot; target=&quot;_blank&quot; data-stringify-link=&quot;https://www.datadoghq.com/legal/applicant-candidate-privacy/&quot; data-sk=&quot;tooltip_parent&quot;&gt;Applicant and Candidate Privacy Notice&lt;/a&gt;. For information on our AI policy, please visit &lt;a href=&quot;https://www.datadoghq.com/legal/interviewing-at-datadog-ai-guidelines/&quot; target=&quot;_blank&quot;&gt;Interviewing at Datadog AI Guidelines&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;",
+      "departments": [
+        {
+          "id": 72261,
+          "name": "Finance",
+          "child_ids": [],
+          "parent_id": 9025
+        }
+      ],
+      "offices": [
+        {
+          "id": 5664,
+          "name": "New York",
+          "location": "New York, NY, United States",
+          "child_ids": [
+            81327,
+            76746
+          ],
+          "parent_id": 73429
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": null,
+      "ai_opt_out_request_url": null
+    },
+    {
+      "absolute_url": "https://careers.datadoghq.com/detail/8204056/?gh_jid=8204056",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 3379256,
+      "location": {
+        "name": "Italy, Remote; Spain, Remote"
+      },
+      "metadata": [
+        {
+          "id": 33310,
+          "name": "Time Type",
+          "value": "Full time",
+          "value_type": "single_select"
+        },
+        {
+          "id": 166208,
+          "name": "Area - Engineering",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 498252,
+          "name": "Cost Center",
+          "value": "Technical Solutions - Professional Services",
+          "value_type": "single_select"
+        },
+        {
+          "id": 516515,
+          "name": "Geography",
+          "value": "EMEA",
+          "value_type": "single_select"
+        },
+        {
+          "id": 9593635,
+          "name": "Early Career Time Type",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 29446322,
+          "name": "Pay Transparency Range",
+          "value": null,
+          "value_type": "currency_range"
+        },
+        {
+          "id": 31273219,
+          "name": "Does this role require access to ITAR-controlled data?",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 58619948,
+          "name": "IC or MG",
+          "value": "IC",
+          "value_type": "single_select"
+        }
+      ],
+      "id": 8204056,
+      "updated_at": "2026-09-29T13:18:57-04:00",
+      "requisition_id": "R18091",
+      "title": " Partner Solutions Architect (EMEA)",
+      "company_name": "Datadog",
+      "first_published": "2026-09-15T09:57:01-04:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;p&gt;&lt;strong&gt;The Team:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;We are Datadog&#39;s in-house product experts. The technical solutions team enables Datadog&#39;s worldwide growth by educating potential clients and ensuring that existing customers are happy and successful. We share our technical and product expertise with customers through demos, presentations, technical evaluations, and ongoing support. Technical solutions is a growing global team that collaborates constantly to share knowledge and continuously advance our technical skillset.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;The Opportunity: &lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;The Partner Solution Architect (PSA) is a Datadog expert who will work closely with Datadog’s Director, Adoption Services, and is aligned to our Channels &amp;amp; Alliances business segment. The PSA is responsible for supporting a variety of technical initiatives and activities for our partners (for example: cloud migration, application modernization, DevOps transformation). They are accountable for the outcome of these initiatives, and frequently collaborate with both Datadog and Partner resources to drive success. The PSA is a trusted technical advisor for our Partner channel.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;You Will:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Ensure the successful onboarding, training, enablement, and certification of partner technical resources;&lt;/li&gt;\n&lt;li&gt;Participate in periodic joint business planning and review sessions to ensure direct alignment between Datadog and Partner technical teams;&lt;/li&gt;\n&lt;li&gt;Collaborate internally to support Partner technical initiatives such as end-customer demonstrations and proofs of value; partner team enablement workshops; assessment, advice, and coaching on lead practices;&lt;/li&gt;\n&lt;li&gt;Advocate on behalf of Partners’ technical concerns (use cases, feature requests, support issues, e.g.) with Datadog internal teams and personnel, helping to bring those concerns to resolution;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;Analyze and understand Partner service offerings on a regular basis and provide recommendations to enhance the value of those services through greater or improved adoption of Datadog features and capabilities;&lt;/li&gt;\n&lt;li&gt;Collaborate with Datadog’s product management, engineering and technical services teams to help identify and prioritize new features and capabilities;&lt;/li&gt;\n&lt;li&gt;Continuously help curate and evolve lead/best practices for Datadog platform adoption and success.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h3&gt;&amp;nbsp;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;You Are:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Possess a solid technical grounding with hands-on experience of IT Development and/or Operations;&lt;/li&gt;\n&lt;li&gt;A demonstrable track-record and never-ending passion for learning;&lt;/li&gt;\n&lt;li&gt;A self-starter, tech-savvy professional with solid business acumen; ability to articulate Datadog value from server room to boardroom;&lt;/li&gt;\n&lt;li&gt;Confident presentation skills;&lt;/li&gt;\n&lt;li&gt;Must be a current EU resident&lt;/li&gt;\n&lt;li&gt;Desired hands-on experience in two or more of the following areas:\n&lt;ul&gt;\n&lt;li&gt;Observability: Datadog, Splunk, AppD, New Relic or Dynatrace&lt;/li&gt;\n&lt;li&gt;Public Cloud: AWS, Azure, GCP, or Alibaba&lt;/li&gt;\n&lt;li&gt;Containerization: Docker, Kubernetes, OpenShift, Cloud Foundry&lt;/li&gt;\n&lt;li&gt;Dev/Scripting: Python, Javascript, Ruby, Perl, PHP, Go&lt;/li&gt;\n&lt;li&gt;Config Mgmt: Terraform, Ansible, Puppet, Chef&lt;/li&gt;\n&lt;li&gt;CI / CD: Jenkins, Gitlab&lt;/li&gt;\n&lt;/ul&gt;\n&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Bonus Points:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Previous experience working in a technical role for or supporting channel partners (Systems Integrators, Managed Services Providers, e.g.);&lt;/li&gt;\n&lt;li&gt;Previous experience using Datadog and/or other cloud monitoring tools (APM, Infrastructure, Logs, Synthetics, NPM);&lt;/li&gt;\n&lt;li&gt;Previous experience with root-cause-analysis, troubleshooting, debugging&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Why You Should Apply:&lt;/strong&gt;&amp;nbsp;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Generous and competitive &lt;a href=&quot;https://www.datadoghq.com/global-benefits/&quot; target=&quot;_blank&quot;&gt;global&lt;/a&gt; and &lt;a href=&quot;https://www.datadoghq.com/us-benefits/&quot; target=&quot;_blank&quot;&gt;US benefits&lt;/a&gt;&lt;/li&gt;\n&lt;li&gt;New hire stock equity (RSUs) and employee stock purchase plan&lt;/li&gt;\n&lt;li&gt;Continuous career development and pathing opportunities&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;Product training to develop an in-depth understanding of our product and space&lt;/li&gt;\n&lt;li&gt;Best in breed onboarding&lt;/li&gt;\n&lt;li&gt;Internal mentor and buddy program cross-departmentally&lt;/li&gt;\n&lt;li&gt;Friendly and inclusive workplace culture&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;About Datadog:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is the monitoring and security platform for cloud applications. Our SaaS product is used by organizations of all sizes across a wide range of industries to enable digital transformation, cloud migration, and infrastructure monitoring of our customers’ entire technology stack, allowing for seamless collaboration and problem-solving among Dev, Ops and Security teams globally. Given the resilience of cloud technologies and importance placed today in digital operations and agility, Datadog continues to innovate and is well positioned for the long term.&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p&gt;&lt;strong&gt;About Datadog:&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is the leading observability and security platform for the AI era, providing businesses with unified visibility across the technology stack to manage complexity at scale. It brings applications, infrastructure, data, models, and security into one place, using AI to detect and resolve issues before they impact customers. Trusted globally by Fortune 500 companies and high-growth AI leaders, Datadog enables businesses to move faster with clarity and confidence. Learn more about #DatadogLife on &lt;a href=&quot;https://www.instagram.com/datadoghq/?hl=en&quot; target=&quot;_blank&quot;&gt;Instagram&lt;/a&gt;, &lt;a href=&quot;https://www.linkedin.com/company/datadog&quot; target=&quot;_blank&quot;&gt;LinkedIn,&lt;/a&gt; and &lt;a href=&quot;https://learn.datadoghq.com/&quot; target=&quot;_blank&quot;&gt;Datadog Learning Center. &lt;/a&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p data-renderer-start-pos=&quot;215&quot;&gt;&lt;strong data-renderer-mark=&quot;true&quot;&gt;Equal Opportunity at Datadog:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is proud to offer &lt;a href=&quot;https://www.eeoc.gov/sites/default/files/2023-06/22-088_EEOC_KnowYourRights6.12ScreenRdr.pdf&quot; target=&quot;_blank&quot;&gt;equal employment opportunity&lt;/a&gt; to everyone regardless of race, color, ancestry, religion, sex, national origin, sexual orientation, age, citizenship, marital status, disability, gender identity, veteran status, and other characteristics protected by law. We also consider qualified applicants regardless of criminal histories, consistent with legal requirements. Here are our &lt;a href=&quot;https://www.datadoghq.com/legal/candidate-legal-notices/&quot; target=&quot;_blank&quot;&gt;Candidate Legal Notices&lt;/a&gt; for your reference.&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;Datadog endeavors to make our Careers Page accessible to all users. If you would like to contact us regarding the accessibility of our website or need assistance completing the application process, please complete &lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSeoJeduEZ2NdZF_65uZmWUrCM-zee7yADXX1s6Xr9zAGq8iKA/viewform&quot; target=&quot;_blank&quot;&gt;this form&lt;/a&gt;. This form is for accommodation requests only and cannot be used to inquire about the status of applications.&amp;nbsp;&lt;/p&gt;\n&lt;p data-renderer-start-pos=&quot;662&quot;&gt;&lt;strong data-renderer-mark=&quot;true&quot;&gt;Privacy and AI Guidelines:&lt;/strong&gt;&lt;/p&gt;\n&lt;p data-renderer-start-pos=&quot;662&quot;&gt;Any information you submit to Datadog as part of your application will be processed in accordance with Datadog’s&amp;nbsp;&lt;a class=&quot;c-link&quot; href=&quot;https://www.datadoghq.com/legal/applicant-candidate-privacy/&quot; target=&quot;_blank&quot; data-stringify-link=&quot;https://www.datadoghq.com/legal/applicant-candidate-privacy/&quot; data-sk=&quot;tooltip_parent&quot;&gt;Applicant and Candidate Privacy Notice&lt;/a&gt;. For information on our AI policy, please visit &lt;a href=&quot;https://www.datadoghq.com/legal/interviewing-at-datadog-ai-guidelines/&quot; target=&quot;_blank&quot;&gt;Interviewing at Datadog AI Guidelines&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;",
+      "departments": [
+        {
+          "id": 72274,
+          "name": "Channels & Alliances",
+          "child_ids": [],
+          "parent_id": 9021
+        }
+      ],
+      "offices": [
+        {
+          "id": 76732,
+          "name": "Remote - France",
+          "location": "France",
+          "child_ids": [],
+          "parent_id": 78094
+        },
+        {
+          "id": 76793,
+          "name": "Remote - Portugal",
+          "location": "Portugal",
+          "child_ids": [],
+          "parent_id": 78106
+        },
+        {
+          "id": 76755,
+          "name": "Remote - Spain",
+          "location": "Spain",
+          "child_ids": [],
+          "parent_id": 74766
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": null,
+      "ai_opt_out_request_url": null
+    },
+    {
+      "absolute_url": "https://careers.datadoghq.com/detail/6009777/?gh_jid=6009777",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": true
+        }
+      ],
+      "internal_job_id": 2824009,
+      "location": {
+        "name": "Tokyo, Japan"
+      },
+      "metadata": [
+        {
+          "id": 33310,
+          "name": "Time Type",
+          "value": "Full time",
+          "value_type": "single_select"
+        },
+        {
+          "id": 166208,
+          "name": "Area - Engineering",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 498252,
+          "name": "Cost Center",
+          "value": "Sales - Commercial Sales",
+          "value_type": "single_select"
+        },
+        {
+          "id": 516515,
+          "name": "Geography",
+          "value": "APAC",
+          "value_type": "single_select"
+        },
+        {
+          "id": 9593635,
+          "name": "Early Career Time Type",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 29446322,
+          "name": "Pay Transparency Range",
+          "value": null,
+          "value_type": "currency_range"
+        },
+        {
+          "id": 31273219,
+          "name": "Does this role require access to ITAR-controlled data?",
+          "value": null,
+          "value_type": "single_select"
+        },
+        {
+          "id": 58619948,
+          "name": "IC or MG",
+          "value": "IC",
+          "value_type": "single_select"
+        }
+      ],
+      "id": 6009777,
+      "updated_at": "2026-09-29T13:18:57-04:00",
+      "requisition_id": "R7154",
+      "title": "Commercial Account Executive",
+      "company_name": "Datadog",
+      "first_published": "2024-06-07T12:53:29-04:00",
+      "language": "ja",
+      "application_deadline": null,
+      "content": "&lt;p style=&quot;color: white;&quot;&gt;#LI-KO1&lt;/p&gt;\n&lt;p&gt;コマーシャル・セールス・チームのアカウント・エグゼクティブとして、中小規模の市場において戦略的に新規顧客を獲得し、クロージングすることで、Datadogのビジネス全体の成長に貢献します。確立されたセールス・メソッドとプロセスに沿って営業活動を進め、社内にいる複数の関係者と協力し、顧客独自のニーズを特定し、Datadog製品の価値を明確に伝えます。アカウント・エグゼクティブとして確実なキャリアを構築しながら、Datadogのコマーシャル・セールス・チームとして、一緒に成功を掴みましょう！&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;Datadogでは、オフィスカルチャーによって築かれる人間関係やコラボレーション、そこからもたらされる創造性を大切にしています。私たちは、従業員それぞれに合ったワーク・ライフ・ハーモニーを実現できるよう、ハイブリッド・ワークプレイスとして運営しています。&lt;/em&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;業務内容：&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;アウトバウンドでの営業活動による新規顧客（ロゴ）獲得に注力&lt;/li&gt;\n&lt;li&gt;継続的かつ充実した製品・セールスのトレーニングを通じて、Datadogのエキスパートになる&lt;/li&gt;\n&lt;li&gt;技術面なデモや交渉などを含めた、すべての販売サイクルを担当する&lt;/li&gt;\n&lt;li&gt;セールス・デベロップメント・チームと協力し、潜在顧客の開拓活動を推進する&lt;/li&gt;\n&lt;li&gt;CTO・CIOや、エンジニアリング・ITのリーダー層、技術系エンドユーザーを戦略的に開拓する&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;募集要項：&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;IT製品のフィールドセールス経験（クロージング含む）が2年以上&lt;/li&gt;\n&lt;li&gt;好奇心旺盛で新しいテクノロジーに関する知識習得への高い意欲&lt;/li&gt;\n&lt;li&gt;限定されたやり方に捉われず、クリエイティブな新規開拓活動ができる&lt;/li&gt;\n&lt;li&gt;フィードバックから学び、継続的に成長し続けるマインド&lt;/li&gt;\n&lt;li&gt;テクニカルな製品の取り扱いや、ペースの速い環境での業務に慣れている&lt;/li&gt;\n&lt;li&gt;営業KPI達成の経験があり、高い実績がある&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;Datadogは、さまざまな立場の人々を大切にしています。誰もが初日から上記の資格をすべて満たすわけではないことは理解しています。それでも構いません。テクノロジーに情熱を持ち、スキルを伸ばしたいと思っている方は、ぜひご応募ください。&lt;/em&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;福利厚生と成長機会：&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;個々のパフォーマンスと成果に基づく豊かな報酬体系&lt;/li&gt;\n&lt;li&gt;新入社員への株式付与（RSU / 譲渡制限付株式ユニット）および従業員株式購入制度（ESPP）&lt;/li&gt;\n&lt;li&gt;継続的な専門能力開発、製品トレーニング、キャリアパスの提供&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;MEDDICとCommand of Messageに関する丁寧な営業研修&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;社内ネットワーク構築のためのメンターおよびバディ・プログラム&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;インクルーシブな企業文化、コミュニティ・ギルドへの参加機会&lt;/li&gt;\n&lt;li&gt;幅広く手厚い医療関連の福利厚生制度&lt;/li&gt;\n&lt;li&gt;企業型確定拠出年金（401K）&lt;/li&gt;\n&lt;li&gt;ペットの養子縁組と保険プログラム&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;上記の内容は、就業する国やDatadogでの雇用内容によって異なる場合があります。&lt;/em&gt;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;世界中のすべての候補者様にご理解頂けるよう、応募情報に関する項目は一部、英語のままで記載されています。全ての求人情報を英語でご確認されたい場合は、&lt;a href=&quot;https://careers.datadoghq.com/detail/5798241/?gh_jid=5798241&quot;&gt;こちら&lt;/a&gt;をご覧ください。&lt;/em&gt;&lt;/p&gt;\n&lt;p style=&quot;color: white;&quot;&gt;#LI-Hybrid&lt;/p&gt;&lt;div class=&quot;content-conclusion&quot;&gt;&lt;hr&gt;\n&lt;p&gt;&lt;strong&gt;About Datadog:&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is the leading observability and security platform for the AI era, providing businesses with unified visibility across the technology stack to manage complexity at scale. It brings applications, infrastructure, data, models, and security into one place, using AI to detect and resolve issues before they impact customers. Trusted globally by Fortune 500 companies and high-growth AI leaders, Datadog enables businesses to move faster with clarity and confidence. Learn more about #DatadogLife on &lt;a href=&quot;https://www.instagram.com/datadoghq/?hl=en&quot; target=&quot;_blank&quot;&gt;Instagram&lt;/a&gt;, &lt;a href=&quot;https://www.linkedin.com/company/datadog&quot; target=&quot;_blank&quot;&gt;LinkedIn,&lt;/a&gt; and &lt;a href=&quot;https://learn.datadoghq.com/&quot; target=&quot;_blank&quot;&gt;Datadog Learning Center. &lt;/a&gt;&lt;/p&gt;\n&lt;hr&gt;\n&lt;p data-renderer-start-pos=&quot;215&quot;&gt;&lt;strong data-renderer-mark=&quot;true&quot;&gt;Equal Opportunity at Datadog:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Datadog is proud to offer &lt;a href=&quot;https://www.eeoc.gov/sites/default/files/2023-06/22-088_EEOC_KnowYourRights6.12ScreenRdr.pdf&quot; target=&quot;_blank&quot;&gt;equal employment opportunity&lt;/a&gt; to everyone regardless of race, color, ancestry, religion, sex, national origin, sexual orientation, age, citizenship, marital status, disability, gender identity, veteran status, and other characteristics protected by law. We also consider qualified applicants regardless of criminal histories, consistent with legal requirements. Here are our &lt;a href=&quot;https://www.datadoghq.com/legal/candidate-legal-notices/&quot; target=&quot;_blank&quot;&gt;Candidate Legal Notices&lt;/a&gt; for your reference.&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;Datadog endeavors to make our Careers Page accessible to all users. If you would like to contact us regarding the accessibility of our website or need assistance completing the application process, please complete &lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSeoJeduEZ2NdZF_65uZmWUrCM-zee7yADXX1s6Xr9zAGq8iKA/viewform&quot; target=&quot;_blank&quot;&gt;this form&lt;/a&gt;. This form is for accommodation requests only and cannot be used to inquire about the status of applications.&amp;nbsp;&lt;/p&gt;\n&lt;p data-renderer-start-pos=&quot;662&quot;&gt;&lt;strong data-renderer-mark=&quot;true&quot;&gt;Privacy and AI Guidelines:&lt;/strong&gt;&lt;/p&gt;\n&lt;p data-renderer-start-pos=&quot;662&quot;&gt;Any information you submit to Datadog as part of your application will be processed in accordance with Datadog’s&amp;nbsp;&lt;a class=&quot;c-link&quot; href=&quot;https://www.datadoghq.com/legal/applicant-candidate-privacy/&quot; target=&quot;_blank&quot; data-stringify-link=&quot;https://www.datadoghq.com/legal/applicant-candidate-privacy/&quot; data-sk=&quot;tooltip_parent&quot;&gt;Applicant and Candidate Privacy Notice&lt;/a&gt;. For information on our AI policy, please visit &lt;a href=&quot;https://www.datadoghq.com/legal/interviewing-at-datadog-ai-guidelines/&quot; target=&quot;_blank&quot;&gt;Interviewing at Datadog AI Guidelines&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;",
+      "departments": [
+        {
+          "id": 72275,
+          "name": "Commercial Sales",
+          "child_ids": [],
+          "parent_id": 9021
+        }
+      ],
+      "offices": [
+        {
+          "id": 10522,
+          "name": "Tokyo",
+          "location": "Tokyo, Japan",
+          "child_ids": [],
+          "parent_id": 73439
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": null,
+      "ai_opt_out_request_url": null
+    }
+  ],
+  "meta": {
+    "total": 3
+  }
+}
