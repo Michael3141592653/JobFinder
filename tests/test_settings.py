@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from jobfinder.settings import Settings
+from jobfinder.settings import DatabaseSettings, Settings
 
 
 def _settings_from_environment_only() -> Settings:
@@ -14,6 +14,23 @@ def test_settings_without_any_setting_names_every_missing_one(monkeypatch):
 
     with pytest.raises(ValidationError, match=r"(?s)database_url.*service_token"):
         _settings_from_environment_only()
+
+
+def test_settings_rejects_an_empty_service_token(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://localhost/jobfinder")
+    monkeypatch.setenv("SERVICE_TOKEN", "")
+
+    with pytest.raises(ValidationError, match="service_token"):
+        _settings_from_environment_only()
+
+
+def test_database_settings_need_no_service_token(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://localhost/jobfinder")
+    monkeypatch.delenv("SERVICE_TOKEN", raising=False)
+
+    database_settings = DatabaseSettings(_env_file=None)
+
+    assert database_settings.database_url == "postgresql://localhost/jobfinder"
 
 
 def test_settings_hides_the_service_token_when_printed(monkeypatch):
