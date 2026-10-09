@@ -4,10 +4,7 @@ import httpx
 import pytest
 from tenacity import wait_none
 
-from jobfinder import http
-
-# Same retry rules, without the real waits between attempts.
-get_without_waiting = http.get.retry_with(wait=wait_none())
+from jobfinder.http import HttpClient
 
 
 def _replay(outcomes: list[int | Exception], requests: list[httpx.Request]) -> httpx.MockTransport:
@@ -26,8 +23,9 @@ def _replay(outcomes: list[int | Exception], requests: list[httpx.Request]) -> h
 
 def _get(outcomes: list[int | Exception], requests: list[httpx.Request]) -> bytes:
     async def run_against_fake_server() -> bytes:
-        async with httpx.AsyncClient(transport=_replay(outcomes, requests)) as client:
-            return await get_without_waiting(client, "https://example.com")
+        transport = _replay(outcomes, requests)
+        async with HttpClient(transport=transport, retry_wait=wait_none()) as http:
+            return await http.get("https://example.com")
 
     return asyncio.run(run_against_fake_server())
 

@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from jobfinder.schema import Job
-from jobfinder.sources import greenhouse
+from jobfinder.sources.greenhouse import GreenhouseSource, split_locations
 
 # Real Datadog board response, trimmed to 3 jobs (US, Italy remote, Japan).
 FIXTURE = Path(__file__).parent / "fixtures" / "greenhouse.json"
@@ -12,7 +12,7 @@ FIXTURE = Path(__file__).parent / "fixtures" / "greenhouse.json"
 
 @pytest.fixture
 def jobs() -> list[Job]:
-    return greenhouse.parse(FIXTURE.read_bytes())
+    return GreenhouseSource.parse(FIXTURE.read_bytes(), slug="datadog")
 
 
 def test_parse_returns_every_job_on_the_board(jobs):
@@ -45,10 +45,10 @@ def test_parse_leaves_no_html_in_description(jobs, markup):
 
 
 def test_parse_rejects_job_missing_required_fields():
-    board_json = '{"jobs": [{"id": 1, "title": "ML Engineer"}]}'
+    response_body = '{"jobs": [{"id": 1, "title": "ML Engineer"}]}'
 
     with pytest.raises(ValidationError):
-        greenhouse.parse(board_json)
+        GreenhouseSource.parse(response_body, slug="datadog")
 
 
 @pytest.mark.parametrize(
@@ -62,4 +62,4 @@ def test_parse_rejects_job_missing_required_fields():
     ],
 )
 def test_split_locations(text, expected):
-    assert greenhouse.split_locations(text) == expected
+    assert split_locations(text) == expected

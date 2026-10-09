@@ -1,7 +1,8 @@
-from jobfinder.sources import greenhouse, lever
+from jobfinder.sources.base import Source
+from jobfinder.sources.greenhouse import GreenhouseSource
+from jobfinder.sources.lever import LeverSource
 
-# source name -> async fetch(client, board) -> list[Job]
-FETCHERS = {
-    "greenhouse": greenhouse.fetch,
-    "lever": lever.fetch,
+# source name (as in boards.toml) -> Source class
+SOURCES: dict[str, type[Source]] = {
+    source.name: source for source in (GreenhouseSource, LeverSource)
 }

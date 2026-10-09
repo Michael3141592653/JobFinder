@@ -6,45 +6,53 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import httpx
-from pydantic import TypeAdapter, ValidationError
+from pydantic import RootModel, ValidationError, field_validator
 
-from jobfinder.schema import Job
-from jobfinder.sources import FETCHERS
+from jobfinder.http import HttpClient
+from jobfinder.schema import Board, Job
+from jobfinder.sources import SOURCES
 
-Boards = dict[str, list[str]]  # source name -> board slugs
+
+class BoardsConfig(RootModel[dict[str, list[str]]]):
+    """The boards file's content: source name -> slugs, e.g. greenhouse = ["datadog"]."""
+
+    @field_validator("root")
+    @classmethod
+    def _sources_must_exist(cls, slugs_by_source: dict[str, list[str]]) -> dict[str, list[str]]:
+        unknown = slugs_by_source.keys() - SOURCES.keys()
+        if unknown:
+            raise ValueError(f"unknown sources {sorted(unknown)}, known: {sorted(SOURCES)}")
+        return slugs_by_source
+
+    @classmethod
+    def from_toml(cls, boards_file: Path) -> "BoardsConfig":
+        with boards_file.open("rb") as file:
+            return cls.model_validate(tomllib.load(file))
+
+    def boards(self) -> list[Board]:
+        return [Board(source, slug) for source, slugs in self.root.items() for slug in slugs]
 
 
 @dataclass
 class BoardResult:
-    source: str
-    board: str
+    board: Board
     jobs: list[Job] = field(default_factory=list)
     error: str | None = None
 
 
-def _check_sources_exist(boards: Boards) -> None:
-    unknown = boards.keys() - FETCHERS.keys()
-    if unknown:
-        raise ValueError(f"unknown sources {sorted(unknown)}, expected some of {sorted(FETCHERS)}")
+class Ingestor:
+    """Fetches boards from every source through one shared HttpClient."""
 
+    def __init__(self, http: HttpClient) -> None:
+        self._sources = {name: source_class(http) for name, source_class in SOURCES.items()}
 
-def load_boards(path: Path) -> Boards:
-    with path.open("rb") as file:
-        boards = TypeAdapter(Boards).validate_python(tomllib.load(file))
-    _check_sources_exist(boards)
-    return boards
+    async def _fetch_board(self, board: Board) -> BoardResult:
+        try:
+            jobs = await self._sources[board.source].fetch(board.slug)
+        except (httpx.HTTPError, ValidationError) as error:
+            return BoardResult(board, error=str(error).splitlines()[0])
+        return BoardResult(board, jobs=jobs)
 
-
-async def _fetch_board(client: httpx.AsyncClient, source: str, board: str) -> BoardResult:
-    try:
-        jobs = await FETCHERS[source](client, board)
-    except (httpx.HTTPError, ValidationError) as error:
-        return BoardResult(source, board, error=str(error).splitlines()[0])
-    return BoardResult(source, board, jobs=jobs)
-
-
-async def fetch_all(client: httpx.AsyncClient, boards: Boards) -> list[BoardResult]:
-    board_fetches = [
-        _fetch_board(client, source, board) for source, slugs in boards.items() for board in slugs
-    ]
-    return await asyncio.gather(*board_fetches)
+    async def fetch_all(self, boards: list[Board]) -> list[BoardResult]:
+        board_fetches = [self._fetch_board(board) for board in boards]
+        return await asyncio.gather(*board_fetches)

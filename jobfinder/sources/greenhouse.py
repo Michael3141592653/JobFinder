@@ -4,11 +4,10 @@ import html
 import re
 from datetime import datetime
 
-import httpx
 from pydantic import BaseModel, ConfigDict
 
-from jobfinder import http
 from jobfinder.schema import Job
+from jobfinder.sources.base import Source
 from jobfinder.text import html_to_text
 
 BASE_URL = "https://boards-api.greenhouse.io/v1/boards"
@@ -51,14 +50,16 @@ class GreenhouseJob(BaseModel):
         )
 
 
-class _Board(BaseModel):
+class _BoardResponse(BaseModel):
     jobs: list[GreenhouseJob]
 
 
-def parse(board_json: bytes | str) -> list[Job]:
-    return [job.to_job() for job in _Board.model_validate_json(board_json).jobs]
+class GreenhouseSource(Source):
+    name = "greenhouse"
 
+    def board_url(self, slug: str) -> str:
+        return f"{BASE_URL}/{slug}/jobs?content=true"  # content=true: include descriptions
 
-async def fetch(client: httpx.AsyncClient, board: str) -> list[Job]:
-    board_json = await http.get(client, f"{BASE_URL}/{board}/jobs", params={"content": "true"})
-    return parse(board_json)
+    @classmethod
+    def parse(cls, response_body: bytes | str, slug: str) -> list[Job]:
+        return [job.to_job() for job in _BoardResponse.model_validate_json(response_body).jobs]

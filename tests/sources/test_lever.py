@@ -5,7 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from jobfinder.schema import Job
-from jobfinder.sources import lever
+from jobfinder.sources.lever import LeverSource
 
 # Real Spotify board response, trimmed to 3 jobs (one with no `additional` section).
 FIXTURE = Path(__file__).parent / "fixtures" / "lever.json"
@@ -13,7 +13,7 @@ FIXTURE = Path(__file__).parent / "fixtures" / "lever.json"
 
 @pytest.fixture
 def jobs() -> list[Job]:
-    return lever.parse(FIXTURE.read_bytes(), company="spotify")
+    return LeverSource.parse(FIXTURE.read_bytes(), slug="spotify")
 
 
 def test_parse_returns_every_job_on_the_board(jobs):
@@ -32,7 +32,7 @@ def test_parse_maps_lever_fields_to_job(jobs):
     }
 
 
-def test_parse_uses_given_company_name(jobs):
+def test_parse_uses_board_slug_as_company_name(jobs):
     assert {job.company for job in jobs} == {"spotify"}
 
 
@@ -54,7 +54,7 @@ def test_parse_leaves_no_html_in_description(jobs, markup):
 
 
 def test_parse_rejects_job_missing_required_fields():
-    board_json = '[{"id": "abc", "text": "ML Engineer"}]'
+    response_body = '[{"id": "abc", "text": "ML Engineer"}]'
 
     with pytest.raises(ValidationError):
-        lever.parse(board_json, company="spotify")
+        LeverSource.parse(response_body, slug="spotify")
