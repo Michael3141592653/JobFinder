@@ -62,14 +62,14 @@ async def test_save_counts_only_unseen_jobs_as_new(connection):
     assert new_job_count == 1
 
 
-async def test_save_keeps_first_seen_and_moves_last_seen(connection):
+async def test_save_keeps_first_seen_at_and_moves_last_seen_at(connection):
     store = JobStore(connection)
     await store.save(_fetched("1"), DAY_1)
 
     await store.save(_fetched("1"), DAY_2)
 
     row = (await _job_rows(connection))["1"]
-    assert (row["first_seen"], row["last_seen"]) == (DAY_1, DAY_2)
+    assert (row["first_seen_at"], row["last_seen_at"]) == (DAY_1, DAY_2)
 
 
 async def test_save_updates_changed_job_instead_of_duplicating_it(connection):

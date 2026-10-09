@@ -10,7 +10,7 @@ from pydantic import SecretStr
 _BEARER_TOKEN = HTTPBearer()
 
 
-def require_service_token(
+async def require_service_token(
     request: Request,
     authorization: Annotated[HTTPAuthorizationCredentials, Security(_BEARER_TOKEN)],
 ) -> None:

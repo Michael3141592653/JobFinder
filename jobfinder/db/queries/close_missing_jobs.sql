@@ -4,5 +4,5 @@ SET
     closed_at = %(refresh_time)s
 WHERE
     company_id = %(company_id)s
-    AND last_seen < %(refresh_time)s
+    AND last_seen_at < %(refresh_time)s
     AND closed_at IS NULL;
