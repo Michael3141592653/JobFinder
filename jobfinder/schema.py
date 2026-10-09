@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -27,3 +27,12 @@ class Job(BaseModel):
     description: str  # plain text, no HTML
     posted_at: datetime
     updated_at: datetime | None = None  # not every provider reports it
+
+
+@dataclass
+class JobSourceFetchResult:
+    """The outcome of fetching one job source: its jobs, or why it failed."""
+
+    source: JobSource
+    jobs: list[Job] = field(default_factory=list)
+    error: str | None = None

@@ -3,10 +3,12 @@ import asyncio
 from pathlib import Path
 
 from jobfinder.config import SourcesConfig
-from jobfinder.fetcher import FetchResult, JobFetcher
+from jobfinder.db.database import Database, UpdateAlreadyRunningError
+from jobfinder.fetcher import JobFetcher
 from jobfinder.http_client import HttpClient
 from jobfinder.providers import PROVIDERS
-from jobfinder.schema import Job, JobSource
+from jobfinder.schema import Job, JobSource, JobSourceFetchResult
+from jobfinder.updater import JobUpdater, SourceUpdate
 
 
 def _print_jobs(jobs: list[Job]) -> None:
@@ -15,32 +17,49 @@ def _print_jobs(jobs: list[Job]) -> None:
     print(f"{len(jobs)} jobs")
 
 
-def _status_line(result: FetchResult) -> str:
-    status = f"FAILED: {result.error}" if result.error else f"{len(result.jobs)} jobs"
-    return f"{result.source}: {status}"
+def _failure_line(result: JobSourceFetchResult) -> str:
+    return f"{result.source}: FAILED: {result.error}"
 
 
-def _print_summary(results: list[FetchResult]) -> None:
-    for result in results:
-        print(_status_line(result))
-    print(f"{sum(len(result.jobs) for result in results)} jobs total")
+def _status_line(update: SourceUpdate) -> str:
+    if update.result.error:
+        return _failure_line(update.result)
+    return f"{update.result.source}: {len(update.result.jobs)} jobs ({update.new_job_count} new)"
 
 
-async def _fetch_all_jobs(sources: list[JobSource]) -> list[FetchResult]:
+def _print_summary(updates: list[SourceUpdate]) -> None:
+    for update in updates:
+        print(_status_line(update))
+    job_count = sum(len(update.result.jobs) for update in updates)
+    new_job_count = sum(update.new_job_count for update in updates)
+    print(f"{job_count} jobs total ({new_job_count} new)")
+
+
+async def _fetch_source(source: JobSource) -> JobSourceFetchResult:
     async with HttpClient() as http:
-        return await JobFetcher(http).fetch_all(sources)
+        return await JobFetcher(http).fetch_source(source)
+
+
+async def _update_jobs(sources: list[JobSource]) -> list[SourceUpdate]:
+    database = Database.from_env()
+    database.check()  # fail before the slow fetch if DATABASE_URL is missing or Postgres is down
+    async with HttpClient() as http:
+        return await JobUpdater(JobFetcher(http), database).update(sources)
 
 
 def _cmd_run(args: argparse.Namespace) -> None:
     config = SourcesConfig.from_toml(args.sources_file)
-    results = asyncio.run(_fetch_all_jobs(config.sources()))
-    _print_summary(results)
+    try:
+        updates = asyncio.run(_update_jobs(config.sources()))
+    except UpdateAlreadyRunningError as error:
+        raise SystemExit(f"jobfinder: {error}") from None
+    _print_summary(updates)
 
 
 def _cmd_fetch(args: argparse.Namespace) -> None:
-    [result] = asyncio.run(_fetch_all_jobs([JobSource(args.provider, args.slug)]))
+    result = asyncio.run(_fetch_source(JobSource(args.provider, args.slug)))
     if result.error:
-        print(_status_line(result))
+        print(_failure_line(result))
     else:
         _print_jobs(result.jobs)
 
@@ -49,7 +68,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="jobfinder")
     commands = parser.add_subparsers(dest="command", required=True)
 
-    run = commands.add_parser("run", help="fetch the jobs of every source in the sources file")
+    run = commands.add_parser("run", help="fetch and store the jobs of every source in the file")
     run.add_argument("--sources-file", type=Path, default=Path("sources.toml"))
     run.set_defaults(handler=_cmd_run)
 
