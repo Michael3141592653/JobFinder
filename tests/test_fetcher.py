@@ -22,6 +22,8 @@ RESPONSE_BODY_BY_URL = {
 
 
 def _fake_server(request: httpx.Request) -> httpx.Response:
+    if "/timeout/" in str(request.url):
+        raise httpx.ReadTimeout("", request=request)  # httpx timeouts often have no message
     response_body = RESPONSE_BODY_BY_URL.get(str(request.url))
     if response_body is None:
         return httpx.Response(404)
@@ -55,6 +57,7 @@ def test_fetch_all_returns_jobs_for_working_source(source):
     [
         pytest.param("missing", "404", id="http-error"),
         pytest.param("broken", "validation error", id="invalid-data"),
+        pytest.param("timeout", "ReadTimeout", id="error-without-message"),
     ],
 )
 def test_fetch_all_reports_failing_source_and_keeps_the_others(slug, expected_error):

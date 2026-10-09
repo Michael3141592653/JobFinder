@@ -11,6 +11,12 @@ from jobfinder.providers import PROVIDERS
 from jobfinder.schema import Job, JobSource
 
 
+def _failure_reason(error: Exception) -> str:
+    """The error's first line, or its type when the message is empty (e.g. ReadTimeout)."""
+    lines = str(error).splitlines()
+    return lines[0] if lines else type(error).__name__
+
+
 @dataclass
 class FetchResult:
     """The outcome of fetching one job source: its jobs, or why it failed."""
@@ -30,7 +36,7 @@ class JobFetcher:
         try:
             jobs = await self._providers[source.provider].fetch(source.slug)
         except (httpx.HTTPError, ValidationError) as error:
-            return FetchResult(source, error=str(error).splitlines()[0])
+            return FetchResult(source, error=_failure_reason(error))
         return FetchResult(source, jobs=jobs)
 
     async def fetch_all(self, sources: list[JobSource]) -> list[FetchResult]:
