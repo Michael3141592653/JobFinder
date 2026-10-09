@@ -1,5 +1,6 @@
 import asyncio
 from collections.abc import Callable
+from concurrent.futures import ProcessPoolExecutor
 
 import pytest
 
@@ -49,3 +50,15 @@ def test_fetch_all_reports_failing_source_and_keeps_the_others(
     assert expected_error in failed.error
     assert failed.jobs == []
     assert len(working.jobs) == 3
+
+
+def test_fetch_all_parses_in_a_process_pool(fake_http_client):
+    async def fetch_with_parse_processes() -> list[JobSourceFetchResult]:
+        async with fake_http_client() as http:
+            with ProcessPoolExecutor(max_workers=1) as parse_processes:
+                job_fetcher = JobFetcher(http, parse_processes)
+                return await job_fetcher.fetch_all([JobSource("greenhouse", "datadog")])
+
+    [result] = asyncio.run(fetch_with_parse_processes())
+
+    assert len(result.jobs) == 3  # the jobs could be sent to the process and back

@@ -1,4 +1,6 @@
+import asyncio
 from abc import ABC, abstractmethod
+from concurrent.futures import Executor
 from typing import ClassVar
 
 from jobfinder.providers.http_client import HttpClient
@@ -15,8 +17,9 @@ class Provider(ABC):
 
     name: ClassVar[str]  # used in sources.toml and on the command line
 
-    def __init__(self, http: HttpClient) -> None:
+    def __init__(self, http: HttpClient, parse_executor: Executor | None = None) -> None:
         self._http = http
+        self._parse_executor = parse_executor  # None: asyncio's default thread pool
 
     @abstractmethod
     def jobs_url(self, slug: str) -> str:
@@ -29,4 +32,7 @@ class Provider(ABC):
 
     async def fetch(self, slug: str) -> list[Job]:
         response_body = await self._http.get(self.jobs_url(slug))
-        return self.parse(response_body, slug)
+        # Off the event loop: parsing a big company is pure-Python CPU work (~0.6 s for 9 MB).
+        # The app passes a process pool: a thread would still hold the GIL and slow the loop.
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(self._parse_executor, self.parse, response_body, slug)

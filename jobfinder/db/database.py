@@ -9,7 +9,8 @@ import psycopg
 from jobfinder.db.queries import load_query
 from jobfinder.db.session import DatabaseSession
 
-CHECK_TIMEOUT_SECONDS = 10  # without it, an unreachable server can hang for minutes on Windows
+# Every connection: without it, an unreachable server can hang for minutes on Windows.
+CONNECT_TIMEOUT_SECONDS = 10
 _TRY_LOCK_REFRESHES = load_query("try_lock_refreshes")
 
 
@@ -27,7 +28,7 @@ class Database:
     async def check(self) -> None:
         """Fail now if the database can't be reached, e.g. at startup."""
         connection = await psycopg.AsyncConnection.connect(
-            self._url, connect_timeout=CHECK_TIMEOUT_SECONDS
+            self._url, connect_timeout=CONNECT_TIMEOUT_SECONDS
         )
         await connection.close()
 
@@ -37,7 +38,9 @@ class Database:
         # ponytail: one connection per session; take it from a psycopg_pool.AsyncConnectionPool
         # opened once here when requests come often (search, phase 2).
         async with (
-            await psycopg.AsyncConnection.connect(self._url) as connection,
+            await psycopg.AsyncConnection.connect(
+                self._url, connect_timeout=CONNECT_TIMEOUT_SECONDS
+            ) as connection,
             DatabaseSession(connection) as session,
         ):
             yield session
@@ -51,7 +54,9 @@ class Database:
         # The lock and the writes share one connection: if it drops, Postgres releases the lock,
         # and the same dead connection can no longer write, so a run that lost the lock never
         # commits. The lock is taken in autocommit, so no transaction is open during the fetch.
-        async with await psycopg.AsyncConnection.connect(self._url, autocommit=True) as connection:
+        async with await psycopg.AsyncConnection.connect(
+            self._url, autocommit=True, connect_timeout=CONNECT_TIMEOUT_SECONDS
+        ) as connection:
             lock_cursor = await connection.execute(_TRY_LOCK_REFRESHES)
             [lock_taken] = await lock_cursor.fetchone()
             if not lock_taken:
