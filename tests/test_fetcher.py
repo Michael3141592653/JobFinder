@@ -5,13 +5,13 @@ import httpx
 import pytest
 from tenacity import wait_none
 
-from jobfinder.fetcher import BoardFetcher, FetchResult
+from jobfinder.fetcher import FetchResult, JobFetcher
 from jobfinder.http_client import HttpClient
-from jobfinder.schema import Board
+from jobfinder.schema import JobSource
 
-FIXTURES = Path(__file__).parent / "sources" / "fixtures"
+FIXTURES = Path(__file__).parent / "providers" / "fixtures"
 
-# Exact URLs, so a wrong `board_url` in any source gets a 404 and fails the test.
+# Exact URLs, so a wrong `jobs_url` in any provider gets a 404 and fails the test.
 RESPONSE_BODY_BY_URL = {
     "https://boards-api.greenhouse.io/v1/boards/datadog/jobs?content=true": (
         FIXTURES / "greenhouse.json"
@@ -28,24 +28,24 @@ def _fake_server(request: httpx.Request) -> httpx.Response:
     return httpx.Response(200, content=response_body)
 
 
-def _fetch_all(boards: list[Board]) -> list[FetchResult]:
+def _fetch_all(sources: list[JobSource]) -> list[FetchResult]:
     async def run_against_fake_server() -> list[FetchResult]:
         transport = httpx.MockTransport(_fake_server)
         async with HttpClient(transport=transport, retry_wait=wait_none()) as http:
-            return await BoardFetcher(http).fetch_all(boards)
+            return await JobFetcher(http).fetch_all(sources)
 
     return asyncio.run(run_against_fake_server())
 
 
 @pytest.mark.parametrize(
-    "board",
+    "source",
     [
-        pytest.param(Board("greenhouse", "datadog"), id="greenhouse"),
-        pytest.param(Board("lever", "spotify"), id="lever"),
+        pytest.param(JobSource("greenhouse", "datadog"), id="greenhouse"),
+        pytest.param(JobSource("lever", "spotify"), id="lever"),
     ],
 )
-def test_fetch_all_returns_jobs_for_working_board(board):
-    [result] = _fetch_all([board])
+def test_fetch_all_returns_jobs_for_working_source(source):
+    [result] = _fetch_all([source])
 
     assert (result.error, len(result.jobs)) == (None, 3)
 
@@ -57,8 +57,10 @@ def test_fetch_all_returns_jobs_for_working_board(board):
         pytest.param("broken", "validation error", id="invalid-data"),
     ],
 )
-def test_fetch_all_reports_failing_board_and_keeps_the_others(slug, expected_error):
-    failed, working = _fetch_all([Board("greenhouse", slug), Board("greenhouse", "datadog")])
+def test_fetch_all_reports_failing_source_and_keeps_the_others(slug, expected_error):
+    sources = [JobSource("greenhouse", slug), JobSource("greenhouse", "datadog")]
+
+    failed, working = _fetch_all(sources)
 
     assert expected_error in failed.error
     assert failed.jobs == []

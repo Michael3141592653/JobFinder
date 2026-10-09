@@ -1,4 +1,4 @@
-"""The boards file (boards.toml): which companies to follow, as slugs per source."""
+"""The sources file (sources.toml): which companies to follow, as slugs per provider."""
 
 import tomllib
 from pathlib import Path
@@ -6,25 +6,27 @@ from typing import Self
 
 from pydantic import RootModel, field_validator
 
-from jobfinder.schema import Board
-from jobfinder.sources import SOURCES
+from jobfinder.providers import PROVIDERS
+from jobfinder.schema import JobSource
 
 
-class BoardsConfig(RootModel[dict[str, list[str]]]):
-    """The boards file's content: source name -> slugs, e.g. greenhouse = ["datadog"]."""
+class SourcesConfig(RootModel[dict[str, list[str]]]):
+    """The sources file's content: provider name -> slugs, e.g. greenhouse = ["datadog"]."""
 
     @field_validator("root")
     @classmethod
-    def _sources_must_exist(cls, slugs_by_source: dict[str, list[str]]) -> dict[str, list[str]]:
-        unknown = slugs_by_source.keys() - SOURCES.keys()
+    def _providers_must_exist(cls, slugs_by_provider: dict[str, list[str]]) -> dict[str, list[str]]:
+        unknown = slugs_by_provider.keys() - PROVIDERS.keys()
         if unknown:
-            raise ValueError(f"unknown sources {sorted(unknown)}, known: {sorted(SOURCES)}")
-        return slugs_by_source
+            raise ValueError(f"unknown providers {sorted(unknown)}, known: {sorted(PROVIDERS)}")
+        return slugs_by_provider
 
     @classmethod
-    def from_toml(cls, boards_file: Path) -> Self:
-        with boards_file.open("rb") as file:
+    def from_toml(cls, sources_file: Path) -> Self:
+        with sources_file.open("rb") as file:
             return cls.model_validate(tomllib.load(file))
 
-    def boards(self) -> list[Board]:
-        return [Board(source, slug) for source, slugs in self.root.items() for slug in slugs]
+    def sources(self) -> list[JobSource]:
+        return [
+            JobSource(provider, slug) for provider, slugs in self.root.items() for slug in slugs
+        ]

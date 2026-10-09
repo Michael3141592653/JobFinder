@@ -4,35 +4,35 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from jobfinder.providers.lever import LeverProvider
 from jobfinder.schema import Job
-from jobfinder.sources.lever import LeverSource
 
-# Real Spotify board response, trimmed to 3 jobs (one with no `additional` section).
+# Real Spotify response, trimmed to 3 jobs (one with no `additional` section).
 FIXTURE = Path(__file__).parent / "fixtures" / "lever.json"
 
 
 @pytest.fixture
 def jobs() -> list[Job]:
-    return LeverSource.parse(FIXTURE.read_bytes(), slug="spotify")
+    return LeverProvider.parse(FIXTURE.read_bytes(), slug="spotify")
 
 
-def test_parse_returns_every_job_on_the_board(jobs):
+def test_parse_returns_every_job_in_the_response(jobs):
     assert len(jobs) == 3
 
 
 def test_parse_maps_lever_fields_to_job(jobs):
-    job = jobs[0]
-
-    assert job.model_dump(include={"source", "source_id", "title", "locations", "url"}) == {
-        "source": "lever",
-        "source_id": "2193db3f-77c5-43b8-b030-8f92c9882bf1",
+    expected = {
+        "provider": "lever",
+        "provider_job_id": "2193db3f-77c5-43b8-b030-8f92c9882bf1",
         "title": "Android Engineer - Experience",
         "locations": ["London", "Stockholm"],
         "url": "https://jobs.lever.co/spotify/2193db3f-77c5-43b8-b030-8f92c9882bf1",
     }
 
+    assert jobs[0].model_dump(include=expected.keys()) == expected
 
-def test_parse_uses_board_slug_as_company_name(jobs):
+
+def test_parse_uses_slug_as_company_name(jobs):
     assert {job.company for job in jobs} == {"spotify"}
 
 
@@ -57,4 +57,4 @@ def test_parse_rejects_job_missing_required_fields():
     response_body = '[{"id": "abc", "text": "ML Engineer"}]'
 
     with pytest.raises(ValidationError):
-        LeverSource.parse(response_body, slug="spotify")
+        LeverProvider.parse(response_body, slug="spotify")

@@ -1,4 +1,4 @@
-"""Fetch boards in parallel, without one failure stopping the rest."""
+"""Fetch jobs from many job sources in parallel, without one failure stopping the rest."""
 
 import asyncio
 from dataclasses import dataclass, field
@@ -7,32 +7,32 @@ import httpx
 from pydantic import ValidationError
 
 from jobfinder.http_client import HttpClient
-from jobfinder.schema import Board, Job
-from jobfinder.sources import SOURCES
+from jobfinder.providers import PROVIDERS
+from jobfinder.schema import Job, JobSource
 
 
 @dataclass
 class FetchResult:
-    """The outcome of fetching one board: its jobs, or why it failed."""
+    """The outcome of fetching one job source: its jobs, or why it failed."""
 
-    board: Board
+    source: JobSource
     jobs: list[Job] = field(default_factory=list)
     error: str | None = None
 
 
-class BoardFetcher:
-    """Fetches boards from every source through one shared HttpClient."""
+class JobFetcher:
+    """Fetches jobs from every provider through one shared HttpClient."""
 
     def __init__(self, http: HttpClient) -> None:
-        self._sources = {name: source_class(http) for name, source_class in SOURCES.items()}
+        self._providers = {name: provider(http) for name, provider in PROVIDERS.items()}
 
-    async def fetch_board(self, board: Board) -> FetchResult:
+    async def fetch_source(self, source: JobSource) -> FetchResult:
         try:
-            jobs = await self._sources[board.source].fetch(board.slug)
+            jobs = await self._providers[source.provider].fetch(source.slug)
         except (httpx.HTTPError, ValidationError) as error:
-            return FetchResult(board, error=str(error).splitlines()[0])
-        return FetchResult(board, jobs=jobs)
+            return FetchResult(source, error=str(error).splitlines()[0])
+        return FetchResult(source, jobs=jobs)
 
-    async def fetch_all(self, boards: list[Board]) -> list[FetchResult]:
-        board_fetches = [self.fetch_board(board) for board in boards]
-        return await asyncio.gather(*board_fetches)
+    async def fetch_all(self, sources: list[JobSource]) -> list[FetchResult]:
+        source_fetches = [self.fetch_source(source) for source in sources]
+        return await asyncio.gather(*source_fetches)

@@ -3,38 +3,38 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from jobfinder.config import BoardsConfig
-from jobfinder.schema import Board
+from jobfinder.config import SourcesConfig
+from jobfinder.schema import JobSource
 
 
-def _write_boards_file(tmp_path: Path, content: str) -> Path:
-    boards_file = tmp_path / "boards.toml"
-    boards_file.write_text(content)
-    return boards_file
+def _write_sources_file(tmp_path: Path, content: str) -> Path:
+    sources_file = tmp_path / "sources.toml"
+    sources_file.write_text(content)
+    return sources_file
 
 
-def test_boards_config_reads_sources_and_slugs_from_toml(tmp_path):
+def test_sources_config_reads_providers_and_slugs_from_toml(tmp_path):
     content = 'greenhouse = ["datadog"]\nlever = ["spotify", "palantir"]'
-    boards_file = _write_boards_file(tmp_path, content)
+    sources_file = _write_sources_file(tmp_path, content)
 
-    config = BoardsConfig.from_toml(boards_file)
+    config = SourcesConfig.from_toml(sources_file)
 
-    assert config.boards() == [
-        Board("greenhouse", "datadog"),
-        Board("lever", "spotify"),
-        Board("lever", "palantir"),
+    assert config.sources() == [
+        JobSource("greenhouse", "datadog"),
+        JobSource("lever", "spotify"),
+        JobSource("lever", "palantir"),
     ]
 
 
-def test_boards_config_rejects_unknown_source(tmp_path):
-    boards_file = _write_boards_file(tmp_path, 'workday = ["acme"]\n')
+def test_sources_config_rejects_unknown_provider(tmp_path):
+    sources_file = _write_sources_file(tmp_path, 'workday = ["acme"]\n')
 
     with pytest.raises(ValidationError, match="workday"):
-        BoardsConfig.from_toml(boards_file)
+        SourcesConfig.from_toml(sources_file)
 
 
-def test_boards_config_rejects_slugs_that_are_not_a_list(tmp_path):
-    boards_file = _write_boards_file(tmp_path, 'greenhouse = "datadog"\n')
+def test_sources_config_rejects_slugs_that_are_not_a_list(tmp_path):
+    sources_file = _write_sources_file(tmp_path, 'greenhouse = "datadog"\n')
 
     with pytest.raises(ValidationError):
-        BoardsConfig.from_toml(boards_file)
+        SourcesConfig.from_toml(sources_file)

@@ -6,8 +6,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from jobfinder.providers.base import Provider
 from jobfinder.schema import Job
-from jobfinder.sources.base import Source
 from jobfinder.text import html_to_text
 
 BASE_URL = "https://boards-api.greenhouse.io/v1/boards"
@@ -38,8 +38,8 @@ class _GreenhouseRawJob(BaseModel):
 
     def to_job(self) -> Job:
         return Job(
-            source=GreenhouseSource.name,
-            source_id=str(self.id),
+            provider=GreenhouseProvider.name,
+            provider_job_id=str(self.id),
             company=self.company_name,
             title=self.title,
             locations=split_locations(self.location.name),
@@ -50,17 +50,17 @@ class _GreenhouseRawJob(BaseModel):
         )
 
 
-class _BoardResponse(BaseModel):
+class _JobsResponse(BaseModel):
     jobs: list[_GreenhouseRawJob]
 
 
-class GreenhouseSource(Source):
+class GreenhouseProvider(Provider):
     name = "greenhouse"
 
-    def board_url(self, slug: str) -> str:
+    def jobs_url(self, slug: str) -> str:
         return f"{BASE_URL}/{slug}/jobs?content=true"  # content=true: include descriptions
 
     @classmethod
     def parse(cls, response_body: bytes | str, slug: str) -> list[Job]:
-        raw_jobs = _BoardResponse.model_validate_json(response_body).jobs
+        raw_jobs = _JobsResponse.model_validate_json(response_body).jobs
         return [raw_job.to_job() for raw_job in raw_jobs]

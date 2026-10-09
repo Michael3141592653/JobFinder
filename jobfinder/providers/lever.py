@@ -6,8 +6,8 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 from pydantic.alias_generators import to_camel
 
+from jobfinder.providers.base import Provider
 from jobfinder.schema import Job
-from jobfinder.sources.base import Source
 from jobfinder.text import html_to_text
 
 BASE_URL = "https://api.lever.co/v0/postings"
@@ -46,8 +46,8 @@ class _LeverRawJob(BaseModel):
 
     def to_job(self, company: str) -> Job:
         return Job(
-            source=LeverSource.name,
-            source_id=self.id,
+            provider=LeverProvider.name,
+            provider_job_id=self.id,
             company=company,
             title=self.title,
             locations=self.categories.all_locations,
@@ -57,17 +57,17 @@ class _LeverRawJob(BaseModel):
         )
 
 
-_BoardResponse = TypeAdapter(list[_LeverRawJob])
+_JobsResponse = TypeAdapter(list[_LeverRawJob])
 
 
-class LeverSource(Source):
+class LeverProvider(Provider):
     name = "lever"
 
-    def board_url(self, slug: str) -> str:
+    def jobs_url(self, slug: str) -> str:
         return f"{BASE_URL}/{slug}?mode=json"
 
     @classmethod
     def parse(cls, response_body: bytes | str, slug: str) -> list[Job]:
-        """Lever doesn't return the company name, so the board slug stands in for it."""
-        raw_jobs = _BoardResponse.validate_json(response_body)
+        """Lever doesn't return the company name, so the slug stands in for it."""
+        raw_jobs = _JobsResponse.validate_json(response_body)
         return [raw_job.to_job(company=slug) for raw_job in raw_jobs]

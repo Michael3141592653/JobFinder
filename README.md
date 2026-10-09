@@ -1,6 +1,6 @@
 # JobFinder
 
-Personal job finder: pull jobs from ATS boards, rank them, send a daily digest.
+Personal job finder: pull jobs from the companies you follow, rank them, send a daily digest.
 
 ## Setup
 
@@ -18,10 +18,10 @@ just fmt
 
 | Term | Meaning | In code |
 |---|---|---|
-| source | where we read jobs from: an ATS (Greenhouse, Lever, ...) or a job search API (Adzuna) | `Source` subclasses, `SOURCES` |
-| slug | a company's id in its board URL: `datadog` in `boards.greenhouse.io/datadog` | `slug: str` |
-| board | one company's job listing on one source: source + slug | `Board`, `boards: list[Board]` |
-| response body | the raw body of a source's HTTP response, before parsing | `response_body` |
-| boards file | `boards.toml`: the companies to follow, as slugs per source; `run` fetches all of them | `boards_file` (path), `BoardsConfig` (content) |
-| raw job | one job as a source's API returns it, before mapping | `_GreenhouseRawJob`, `_LeverRawJob` |
-| job | a raw job mapped to our common shape, the same for every source | `Job` |
+| provider | a service we read jobs from: an ATS (Greenhouse, Lever, ...) or a job search API (Adzuna) | `Provider` subclasses, `PROVIDERS` |
+| slug | a company's id on a provider, from its careers page URL: `datadog` in `boards.greenhouse.io/datadog` | `slug: str` |
+| job source | a company we follow on one provider: provider + slug, e.g. `greenhouse/datadog` | `JobSource`, `sources: list[JobSource]` |
+| sources file | `sources.toml`: the job sources to fetch, as slugs per provider; `run` fetches all of them | `sources_file` (path), `SourcesConfig` (content) |
+| response body | the raw body of a provider's HTTP response, before parsing | `response_body` |
+| raw job | one job as a provider's API returns it, before mapping | `_GreenhouseRawJob`, `_LeverRawJob` |
+| job | a raw job mapped to our common shape, the same for every provider | `Job` |

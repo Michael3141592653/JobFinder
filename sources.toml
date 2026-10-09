@@ -1,5 +1,5 @@
-# Boards fetched by `jobfinder run`: source = [board slugs].
-# The slug is the last part of the company's careers URL,
+# Job sources fetched by `jobfinder run`: provider = [company slugs].
+# The slug is the company's id in its careers page URL,
 # e.g. boards.greenhouse.io/datadog -> "datadog", jobs.lever.co/spotify -> "spotify".
 
 greenhouse = ["anthropic", "datadog", "stripe"]

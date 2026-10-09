@@ -3,32 +3,32 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from jobfinder.providers.greenhouse import GreenhouseProvider, split_locations
 from jobfinder.schema import Job
-from jobfinder.sources.greenhouse import GreenhouseSource, split_locations
 
-# Real Datadog board response, trimmed to 3 jobs (US, Italy remote, Japan).
+# Real Datadog response, trimmed to 3 jobs (US, Italy remote, Japan).
 FIXTURE = Path(__file__).parent / "fixtures" / "greenhouse.json"
 
 
 @pytest.fixture
 def jobs() -> list[Job]:
-    return GreenhouseSource.parse(FIXTURE.read_bytes(), slug="datadog")
+    return GreenhouseProvider.parse(FIXTURE.read_bytes(), slug="datadog")
 
 
-def test_parse_returns_every_job_on_the_board(jobs):
+def test_parse_returns_every_job_in_the_response(jobs):
     assert len(jobs) == 3
 
 
 def test_parse_maps_greenhouse_fields_to_job(jobs):
-    job = jobs[1]
-
-    assert job.model_dump(include={"source", "source_id", "company", "locations", "url"}) == {
-        "source": "greenhouse",
-        "source_id": "8204056",
+    expected = {
+        "provider": "greenhouse",
+        "provider_job_id": "8204056",
         "company": "Datadog",
         "locations": ["Italy, Remote", "Spain, Remote"],
         "url": "https://careers.datadoghq.com/detail/8204056/?gh_jid=8204056",
     }
+
+    assert jobs[1].model_dump(include=expected.keys()) == expected
 
 
 def test_parse_strips_whitespace_around_title(jobs):
@@ -48,7 +48,7 @@ def test_parse_rejects_job_missing_required_fields():
     response_body = '{"jobs": [{"id": 1, "title": "ML Engineer"}]}'
 
     with pytest.raises(ValidationError):
-        GreenhouseSource.parse(response_body, slug="datadog")
+        GreenhouseProvider.parse(response_body, slug="datadog")
 
 
 @pytest.mark.parametrize(

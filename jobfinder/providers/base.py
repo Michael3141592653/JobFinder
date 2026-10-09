@@ -5,20 +5,22 @@ from jobfinder.http_client import HttpClient
 from jobfinder.schema import Job
 
 
-class Source(ABC):
-    """Where we read jobs from (Greenhouse, Lever, ...): where a board lives and how to read it.
+class Provider(ABC):
+    """A service we read jobs from (Greenhouse, Lever, ...).
 
-    Subclasses set `name` and implement `board_url` and `parse`; `fetch` is shared.
+    Knows where to find a company's jobs and how to read them.
+
+    Subclasses set `name` and implement `jobs_url` and `parse`; `fetch` is shared.
     """
 
-    name: ClassVar[str]  # used in boards.toml and on the command line
+    name: ClassVar[str]  # used in sources.toml and on the command line
 
     def __init__(self, http: HttpClient) -> None:
         self._http = http
 
     @abstractmethod
-    def board_url(self, slug: str) -> str:
-        """The API URL listing every open job on this board."""
+    def jobs_url(self, slug: str) -> str:
+        """The API URL listing every open job of this company."""
 
     @classmethod
     @abstractmethod
@@ -26,5 +28,5 @@ class Source(ABC):
         """Validate the response body and map each raw job to a Job."""
 
     async def fetch(self, slug: str) -> list[Job]:
-        response_body = await self._http.get(self.board_url(slug))
+        response_body = await self._http.get(self.jobs_url(slug))
         return self.parse(response_body, slug)
