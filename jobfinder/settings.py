@@ -1,19 +1,15 @@
-"""The app's settings, from the environment. `just` loads .env (see .env.example)."""
+"""The app's settings, from the environment or .env (see .env.example). No defaults: a missing
+setting fails at startup, with every missing one named at once."""
 
-import os
-
-
-def _required_setting(name: str) -> str:
-    setting = os.environ.get(name)
-    if not setting:
-        raise RuntimeError(f"{name} is not set: copy .env.example to .env")
-    return setting
+from pydantic import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def database_url() -> str:
-    return _required_setting("DATABASE_URL")
+class Settings(BaseSettings):
+    # Environment variables win over .env; other variables in .env (e.g. for tests) are ignored.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-
-def service_token() -> str:
-    """The token machine callers (e.g. the scheduler) send as "Authorization: Bearer <token>"."""
-    return _required_setting("SERVICE_TOKEN")
+    database_url: str
+    # The token machine callers (e.g. the scheduler) send as "Authorization: Bearer <token>".
+    # SecretStr: printed as ********** in logs and tracebacks.
+    service_token: SecretStr

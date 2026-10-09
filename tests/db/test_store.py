@@ -1,9 +1,12 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from psycopg.rows import dict_row
 
 from jobfinder.db.store import JobStore
 from jobfinder.schema import Job, JobSource, JobSourceFetchResult
+
+pytestmark = pytest.mark.anyio
 
 SOURCE = JobSource("greenhouse", "datadog")
 DAY_1 = datetime(2026, 10, 1, tzinfo=UTC)
@@ -32,104 +35,109 @@ def _failed() -> JobSourceFetchResult:
     return JobSourceFetchResult(SOURCE, error="404 Not Found")
 
 
-def _job_rows(connection) -> dict[str, dict]:
-    rows = connection.cursor(row_factory=dict_row).execute("SELECT * FROM jobs").fetchall()
-    return {row["provider_job_id"]: row for row in rows}
+async def _job_rows(connection) -> dict[str, dict]:
+    job_cursor = await connection.cursor(row_factory=dict_row).execute("SELECT * FROM jobs")
+    return {row["provider_job_id"]: row for row in await job_cursor.fetchall()}
 
 
-def _company_row(connection) -> dict:
-    return connection.cursor(row_factory=dict_row).execute("SELECT * FROM companies").fetchone()
+async def _company_row(connection) -> dict:
+    company_cursor = await connection.cursor(row_factory=dict_row).execute(
+        "SELECT * FROM companies"
+    )
+    return await company_cursor.fetchone()
 
 
-def test_save_counts_every_job_of_first_fetch_as_new(connection):
-    new_job_count = JobStore(connection).save(_fetched("1", "2"), DAY_1)
+async def test_save_counts_every_job_of_first_fetch_as_new(connection):
+    new_job_count = await JobStore(connection).save(_fetched("1", "2"), DAY_1)
 
     assert new_job_count == 2
 
 
-def test_save_counts_only_unseen_jobs_as_new(connection):
+async def test_save_counts_only_unseen_jobs_as_new(connection):
     store = JobStore(connection)
-    store.save(_fetched("1", "2"), DAY_1)
+    await store.save(_fetched("1", "2"), DAY_1)
 
-    new_job_count = store.save(_fetched("1", "2", "3"), DAY_2)
+    new_job_count = await store.save(_fetched("1", "2", "3"), DAY_2)
 
     assert new_job_count == 1
 
 
-def test_save_keeps_first_seen_and_moves_last_seen(connection):
+async def test_save_keeps_first_seen_and_moves_last_seen(connection):
     store = JobStore(connection)
-    store.save(_fetched("1"), DAY_1)
+    await store.save(_fetched("1"), DAY_1)
 
-    store.save(_fetched("1"), DAY_2)
+    await store.save(_fetched("1"), DAY_2)
 
-    row = _job_rows(connection)["1"]
+    row = (await _job_rows(connection))["1"]
     assert (row["first_seen"], row["last_seen"]) == (DAY_1, DAY_2)
 
 
-def test_save_updates_changed_job_instead_of_duplicating_it(connection):
+async def test_save_updates_changed_job_instead_of_duplicating_it(connection):
     store = JobStore(connection)
-    store.save(_fetched("1"), DAY_1)
+    await store.save(_fetched("1"), DAY_1)
 
-    store.save(JobSourceFetchResult(SOURCE, jobs=[_job("1", title="Senior ML Engineer")]), DAY_2)
+    await store.save(
+        JobSourceFetchResult(SOURCE, jobs=[_job("1", title="Senior ML Engineer")]), DAY_2
+    )
 
-    rows = _job_rows(connection)
+    rows = await _job_rows(connection)
     assert len(rows) == 1
     assert rows["1"]["title"] == "Senior ML Engineer"
 
 
-def test_save_closes_jobs_missing_from_the_fetch(connection):
+async def test_save_closes_jobs_missing_from_the_fetch(connection):
     store = JobStore(connection)
-    store.save(_fetched("1", "2"), DAY_1)
+    await store.save(_fetched("1", "2"), DAY_1)
 
-    store.save(_fetched("1"), DAY_2)
+    await store.save(_fetched("1"), DAY_2)
 
-    rows = _job_rows(connection)
+    rows = await _job_rows(connection)
     assert (rows["1"]["closed_at"], rows["2"]["closed_at"]) == (None, DAY_2)
 
 
-def test_save_reopens_closed_job_that_comes_back(connection):
+async def test_save_reopens_closed_job_that_comes_back(connection):
     store = JobStore(connection)
-    store.save(_fetched("1"), DAY_1)
-    store.save(_fetched(), DAY_2)
+    await store.save(_fetched("1"), DAY_1)
+    await store.save(_fetched(), DAY_2)
 
-    store.save(_fetched("1"), DAY_3)
+    await store.save(_fetched("1"), DAY_3)
 
-    assert _job_rows(connection)["1"]["closed_at"] is None
+    assert (await _job_rows(connection))["1"]["closed_at"] is None
 
 
-def test_save_failed_fetch_keeps_jobs_open(connection):
+async def test_save_failed_fetch_keeps_jobs_open(connection):
     store = JobStore(connection)
-    store.save(_fetched("1"), DAY_1)
+    await store.save(_fetched("1"), DAY_1)
 
-    new_job_count = store.save(_failed(), DAY_2)
+    new_job_count = await store.save(_failed(), DAY_2)
 
     assert new_job_count == 0
-    assert _job_rows(connection)["1"]["closed_at"] is None
+    assert (await _job_rows(connection))["1"]["closed_at"] is None
 
 
-def test_save_failed_fetch_records_error_on_company(connection):
-    JobStore(connection).save(_failed(), DAY_1)
+async def test_save_failed_fetch_records_error_on_company(connection):
+    await JobStore(connection).save(_failed(), DAY_1)
 
-    company = _company_row(connection)
+    company = await _company_row(connection)
     assert (company["name"], company["last_error"]) == ("datadog", "404 Not Found")
 
 
-def test_save_successful_fetch_clears_previous_error_and_sets_name(connection):
+async def test_save_successful_fetch_clears_previous_error_and_sets_name(connection):
     store = JobStore(connection)
-    store.save(_failed(), DAY_1)
+    await store.save(_failed(), DAY_1)
 
-    store.save(_fetched("1"), DAY_2)
+    await store.save(_fetched("1"), DAY_2)
 
-    company = _company_row(connection)
+    company = await _company_row(connection)
     assert (company["name"], company["last_error"]) == ("Datadog", None)
 
 
-def test_delete_closed_jobs_removes_only_jobs_closed_before_cutoff(connection):
+async def test_delete_closed_jobs_removes_only_jobs_closed_before_cutoff(connection):
     store = JobStore(connection)
-    store.save(_fetched("open", "closed-day-2", "closed-day-3"), DAY_1)
-    store.save(_fetched("open", "closed-day-3"), DAY_2)
-    store.save(_fetched("open"), DAY_3)
+    await store.save(_fetched("open", "closed-day-2", "closed-day-3"), DAY_1)
+    await store.save(_fetched("open", "closed-day-3"), DAY_2)
+    await store.save(_fetched("open"), DAY_3)
 
-    store.delete_closed_jobs(closed_before=DAY_3)
+    await store.delete_closed_jobs(closed_before=DAY_3)
 
-    assert _job_rows(connection).keys() == {"open", "closed-day-3"}
+    assert (await _job_rows(connection)).keys() == {"open", "closed-day-3"}

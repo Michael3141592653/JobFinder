@@ -1,10 +1,15 @@
+import asyncio
 from collections.abc import Callable, Generator
+from contextlib import contextmanager
 from pathlib import Path
 
+import psycopg
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from jobfinder.db.database import Database
+from jobfinder.db.queries import load_query
 from jobfinder.http_client import HttpClient
 from jobfinder.main import create_app
 
@@ -22,8 +27,11 @@ def sources_file(tmp_path: Path) -> Path:
 def api_client(
     fake_http_client: Callable[[], HttpClient], database_url: str, sources_file: Path
 ) -> Generator[TestClient]:
-    app = create_app(Database(database_url), fake_http_client(), sources_file, SERVICE_TOKEN)
-    with TestClient(app) as api_client:  # `with` runs startup and shutdown
+    database = Database(database_url)
+    app = create_app(database, fake_http_client(), sources_file, SecretStr(SERVICE_TOKEN))
+    # `with` runs startup and shutdown. SelectorEventLoop: see anyio_backend in conftest.py.
+    selector_loop = {"loop_factory": asyncio.SelectorEventLoop}
+    with TestClient(app, backend_options=selector_loop) as api_client:
         yield api_client
 
 
@@ -72,8 +80,16 @@ def test_refresh_jobs_without_the_right_bearer_token_is_unauthorized(api_client,
     assert response.status_code == 401
 
 
+@contextmanager
+def _another_refresh_running(database_url: str) -> Generator[None]:
+    """Holds the refresh lock on its own connection, as a running refresh would."""
+    with psycopg.connect(database_url, autocommit=True) as lock_connection:
+        lock_connection.execute(load_query("try_lock_refreshes"))
+        yield
+
+
 def test_refresh_jobs_while_another_refresh_runs_is_a_conflict(api_client, database_url):
-    with Database(database_url).refresh_session():
+    with _another_refresh_running(database_url):
         response = _refresh_jobs(api_client)
 
     assert response.status_code == 409

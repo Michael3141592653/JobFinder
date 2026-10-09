@@ -28,22 +28,23 @@ class JobRefresher:
         self._fetcher = fetcher
         self._database = database
 
-    def _store_results(
+    async def _store_results(
         self, jobs: JobStore, results: list[JobSourceFetchResult]
     ) -> list[SourceRefresh]:
         # One time for the whole run: it marks which jobs are new.
-        refresh_time = jobs.database_time()
+        refresh_time = await jobs.database_time()
+        # One after the other: they share the session's connection, which runs one query at a time.
         source_refreshes = [
-            SourceRefresh(result, jobs.save(result, refresh_time)) for result in results
+            SourceRefresh(result, await jobs.save(result, refresh_time)) for result in results
         ]
-        jobs.delete_closed_jobs(closed_before=refresh_time - KEEP_CLOSED_JOBS)
+        await jobs.delete_closed_jobs(closed_before=refresh_time - KEEP_CLOSED_JOBS)
         return source_refreshes
 
     async def refresh(self, sources: list[JobSource]) -> list[SourceRefresh]:
         """Fetch, then store everything in one transaction, committed only once all of it is done:
         a crash halfway saves nothing. Fails with RefreshAlreadyRunningError if one is running."""
-        with self._database.refresh_session() as session:
+        async with self._database.refresh_session() as session:
             results = await self._fetcher.fetch_all(sources)
-            source_refreshes = self._store_results(session.jobs, results)
-            session.commit()
+            source_refreshes = await self._store_results(session.jobs, results)
+            await session.commit()
         return source_refreshes

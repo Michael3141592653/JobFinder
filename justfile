@@ -16,8 +16,9 @@ db-migrate:
     uv run alembic upgrade head
 
 # serve the API on http://localhost:8000 (docs at /docs), reloading on code changes
+# (SelectorEventLoop: psycopg's async mode can't run on Windows' default ProactorEventLoop)
 run-api:
-    uv run uvicorn jobfinder.main:app_from_env --factory --reload
+    uv run uvicorn jobfinder.main:app_from_env --factory --reload --loop asyncio:SelectorEventLoop
 
 test *args:
     uv run pytest {{args}}

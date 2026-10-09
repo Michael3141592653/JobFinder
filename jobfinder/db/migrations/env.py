@@ -3,12 +3,12 @@
 from alembic import context
 from sqlalchemy import URL, create_engine, make_url, pool
 
-from jobfinder.settings import database_url
+from jobfinder.settings import Settings
 
 
 def _sqlalchemy_url() -> URL:
     """DATABASE_URL, told to use psycopg 3 (SQLAlchemy would otherwise pick psycopg2)."""
-    return make_url(database_url()).set(drivername="postgresql+psycopg")
+    return make_url(Settings().database_url).set(drivername="postgresql+psycopg")
 
 
 def run_migrations() -> None:

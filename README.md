@@ -22,7 +22,6 @@ To fetch every job source and store the jobs, with the API running:
 curl -X POST -H "Authorization: Bearer $SERVICE_TOKEN" http://localhost:8000/jobs/refresh
 ```
 
-The app reads `DATABASE_URL` (tests: `TEST_DATABASE_URL`) and `SERVICE_TOKEN` from the environment; there are no defaults.
-Run commands through `just` so `.env` is loaded, or set the variables yourself.
+The app reads `DATABASE_URL` and `SERVICE_TOKEN` (tests: `TEST_DATABASE_URL`) from `.env` or the environment, which wins; there are no defaults, and the app won't start if one is missing.
 After changing the schema, add a migration with `uv run alembic revision -m "<what changed>"`.
 

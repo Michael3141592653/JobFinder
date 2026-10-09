@@ -1,5 +1,6 @@
+import asyncio
 import os
-from collections.abc import Callable
+from collections.abc import AsyncGenerator, Callable
 from pathlib import Path
 
 import httpx
@@ -71,6 +72,13 @@ def database_url(migrated_database_url: str) -> str:
 
 
 @pytest.fixture
-def connection(database_url: str):
-    with psycopg.connect(database_url) as connection:
+def anyio_backend() -> tuple[str, dict]:
+    """Async tests (@pytest.mark.anyio) run on asyncio's SelectorEventLoop: psycopg's async mode
+    can't run on Windows' default ProactorEventLoop."""
+    return "asyncio", {"loop_factory": asyncio.SelectorEventLoop}
+
+
+@pytest.fixture
+async def connection(database_url: str) -> AsyncGenerator[psycopg.AsyncConnection]:
+    async with await psycopg.AsyncConnection.connect(database_url) as connection:
         yield connection
