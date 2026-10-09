@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from jobfinder.config import SourcesConfig
 from jobfinder.schema import JobSource
+from jobfinder.sources import SourcesConfig
 
 
 def _write_sources_file(tmp_path: Path, content: str) -> Path:

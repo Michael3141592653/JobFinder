@@ -1,6 +1,7 @@
 """The app: builds the services once, then serves the API. Run with `just run-api`; the docs
 are at /docs."""
 
+import logging
 from collections.abc import AsyncGenerator, Callable
 from concurrent.futures import Executor, ProcessPoolExecutor
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
@@ -11,12 +12,12 @@ from pydantic import SecretStr
 
 from jobfinder.api.exceptions import add_exception_handlers
 from jobfinder.api.main import api_router
-from jobfinder.config import SOURCES_FILE
 from jobfinder.db.database import Database
 from jobfinder.providers.fetcher import JobFetcher
 from jobfinder.providers.http_client import HttpClient
 from jobfinder.services.refresher import JobRefresher
 from jobfinder.settings import Settings
+from jobfinder.sources import SOURCES_FILE
 
 # Processes that parse the job boards' responses. Each one starts on the first refresh after
 # startup (about 2 s each on Windows), then stays for the next ones.
@@ -59,6 +60,8 @@ def create_app(
 
 def app_from_env() -> FastAPI:
     """The real app, for uvicorn's --factory: fails at startup if a setting is missing."""
+    # uvicorn configures only its own loggers: without this, the app's INFO lines are dropped.
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s: %(message)s")
     settings = Settings()
     return create_app(
         Database(settings.database_url),

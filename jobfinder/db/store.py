@@ -4,7 +4,7 @@ from datetime import datetime
 
 import psycopg
 
-from jobfinder.db.queries import load_query
+from jobfinder.db.sql import fetch_value, load_query
 from jobfinder.schema import Job, JobSource, JobSourceFetchResult
 
 # Loaded at import, so a missing or misnamed file fails right away, not mid-run.
@@ -37,9 +37,7 @@ class JobStore:
             "refresh_time": refresh_time,
             "error": error,
         }
-        company_cursor = await self._connection.execute(_SAVE_COMPANY, params)
-        [company_id] = await company_cursor.fetchone()
-        return company_id
+        return await fetch_value(self._connection, _SAVE_COMPANY, params)
 
     async def _save_jobs(self, company_id: int, jobs: list[Job], refresh_time: datetime) -> None:
         run_params = {"company_id": company_id, "refresh_time": refresh_time}
@@ -53,9 +51,7 @@ class JobStore:
 
     async def _count_new_jobs(self, company_id: int, refresh_time: datetime) -> int:
         params = {"company_id": company_id, "refresh_time": refresh_time}
-        count_cursor = await self._connection.execute(_COUNT_NEW_JOBS, params)
-        [new_job_count] = await count_cursor.fetchone()
-        return new_job_count
+        return await fetch_value(self._connection, _COUNT_NEW_JOBS, params)
 
     async def save(self, result: JobSourceFetchResult, refresh_time: datetime) -> int:
         """Store one source's fetch and return how many of its jobs are new.
@@ -72,9 +68,7 @@ class JobStore:
 
     async def database_time(self) -> datetime:
         """The database's clock, shared by every machine, unlike each machine's own clock."""
-        time_cursor = await self._connection.execute(_DATABASE_TIME)
-        [database_time] = await time_cursor.fetchone()
-        return database_time
+        return await fetch_value(self._connection, _DATABASE_TIME)
 
     async def delete_closed_jobs(self, closed_before: datetime) -> None:
         await self._connection.execute(_DELETE_CLOSED_JOBS, {"closed_before": closed_before})

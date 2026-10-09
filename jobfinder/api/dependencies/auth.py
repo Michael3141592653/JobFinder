@@ -7,12 +7,12 @@ from fastapi import HTTPException, Request, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import SecretStr
 
-_BEARER_TOKEN = HTTPBearer()
+_BEARER_SCHEME = HTTPBearer()
 
 
 async def require_service_token(
     request: Request,
-    authorization: Annotated[HTTPAuthorizationCredentials, Security(_BEARER_TOKEN)],
+    authorization: Annotated[HTTPAuthorizationCredentials, Security(_BEARER_SCHEME)],
 ) -> None:
     """Rejects the request unless it sends "Authorization: Bearer <the app's token>"; a missing
     header is a 401 too."""

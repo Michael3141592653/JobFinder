@@ -26,6 +26,7 @@ test *args:
 lint:
     uv run ruff check .
     uv run ruff format --check .
+    uv run mypy jobfinder tests
     uv run sqlfluff lint jobfinder/db/queries
 
 fmt:

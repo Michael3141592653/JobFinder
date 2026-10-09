@@ -1,6 +1,7 @@
 """One refresh: fetch every job source and store what was found. Entry points (the API now,
 a scheduler later) only build the dependencies and present the result."""
 
+import logging
 from dataclasses import dataclass
 from datetime import timedelta
 
@@ -12,6 +13,8 @@ from jobfinder.schema import JobSource, JobSourceFetchResult
 # ponytail: fixed retention; make it a setting if someone needs closed jobs for longer.
 KEEP_CLOSED_JOBS = timedelta(days=30)
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class SourceRefresh:
@@ -19,6 +22,17 @@ class SourceRefresh:
 
     result: JobSourceFetchResult
     new_job_count: int
+
+
+def _log_refresh(source_refreshes: list[SourceRefresh]) -> None:
+    """Logged, not only returned: a scheduler calling the API may discard the response."""
+    for source_refresh in source_refreshes:
+        if source_refresh.result.error:
+            logger.warning(
+                "%s failed: %s", source_refresh.result.source, source_refresh.result.error
+            )
+    new_job_count = sum(source_refresh.new_job_count for source_refresh in source_refreshes)
+    logger.info("refreshed %d sources, %d new jobs", len(source_refreshes), new_job_count)
 
 
 class JobRefresher:
@@ -47,4 +61,5 @@ class JobRefresher:
             results = await self._fetcher.fetch_all(sources)
             source_refreshes = await self._store_results(session.jobs, results)
             await session.commit()
+        _log_refresh(source_refreshes)
         return source_refreshes

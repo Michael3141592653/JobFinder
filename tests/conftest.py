@@ -3,6 +3,7 @@ import os
 from collections.abc import AsyncGenerator, Callable, Generator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Literal
 
 import httpx
 import psycopg
@@ -80,7 +81,7 @@ def parse_executor() -> Generator[ThreadPoolExecutor]:
 
 
 @pytest.fixture
-def anyio_backend() -> tuple[str, dict]:
+def anyio_backend() -> tuple[Literal["asyncio"], dict]:
     """Async tests (@pytest.mark.anyio) run on asyncio's SelectorEventLoop: psycopg's async mode
     can't run on Windows' default ProactorEventLoop."""
     return "asyncio", {"loop_factory": asyncio.SelectorEventLoop}

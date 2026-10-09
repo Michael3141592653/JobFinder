@@ -17,8 +17,9 @@ NOW = datetime(2026, 10, 1, tzinfo=UTC)
 def _committed_company_count(database_url: str) -> int:
     """Counted on a separate connection, which only sees committed data."""
     with psycopg.connect(database_url) as other_connection:
-        [company_count] = other_connection.execute("SELECT COUNT(*) FROM companies").fetchone()
-    return company_count
+        company_count_row = other_connection.execute("SELECT COUNT(*) FROM companies").fetchone()
+    assert company_count_row is not None
+    return company_count_row[0]
 
 
 async def _save_then_crash(database: Database) -> None:

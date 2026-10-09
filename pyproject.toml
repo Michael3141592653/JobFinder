@@ -19,6 +19,7 @@ dependencies = [
 dev = [
     "anyio>=4.15.1",
     "httpx2>=2.13.1",
+    "mypy>=2.4.0",
     "pytest",
     "ruff",
     "sqlfluff>=4.4.0",
@@ -33,7 +34,7 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "PT"]
+select = ["E", "F", "I", "UP", "B", "PT", "ASYNC", "FAST"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -59,3 +60,7 @@ extended_capitalisation_policy = "upper"
 
 [tool.sqlfluff.rules.capitalisation.literals]
 capitalisation_policy = "upper"
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]  # knows BaseSettings fields come from the environment
+check_untyped_defs = true  # tests have unannotated fixture arguments

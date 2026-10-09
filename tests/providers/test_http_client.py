@@ -44,7 +44,7 @@ def test_get_returns_body_on_success():
     ],
 )
 def test_get_retries_temporary_failure_then_succeeds(failure):
-    requests = []
+    requests: list[httpx.Request] = []
 
     body = _get([failure, 200], requests)
 
@@ -52,7 +52,7 @@ def test_get_retries_temporary_failure_then_succeeds(failure):
 
 
 def test_get_does_not_retry_client_error():
-    requests = []
+    requests: list[httpx.Request] = []
 
     with pytest.raises(httpx.HTTPStatusError):
         _get([404], requests)
@@ -61,7 +61,7 @@ def test_get_does_not_retry_client_error():
 
 
 def test_get_gives_up_after_three_attempts():
-    requests = []
+    requests: list[httpx.Request] = []
 
     with pytest.raises(httpx.HTTPStatusError):
         _get([503, 503, 503], requests)

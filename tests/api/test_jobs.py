@@ -2,6 +2,7 @@ from collections.abc import Callable, Generator
 from concurrent.futures import Executor
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Literal
 
 import psycopg
 import pytest
@@ -9,7 +10,7 @@ from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
 from jobfinder.db.database import Database
-from jobfinder.db.queries import load_query
+from jobfinder.db.sql import load_query
 from jobfinder.main import create_app
 from jobfinder.providers.http_client import HttpClient
 
@@ -29,7 +30,7 @@ def api_client(
     database_url: str,
     sources_file: Path,
     parse_executor: Executor,
-    anyio_backend: tuple[str, dict],
+    anyio_backend: tuple[Literal["asyncio"], dict],
 ) -> Generator[TestClient]:
     app = create_app(
         Database(database_url),

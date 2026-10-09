@@ -12,7 +12,7 @@ just db-up       # start Postgres (docker compose), with a separate test databas
 just db-migrate  # create or update the tables (alembic upgrade head)
 just run-api     # serve the API on http://localhost:8000 (docs at /docs)
 just test        # store tests are skipped when Postgres is not running
-just lint        # ruff check + format check, sqlfluff for the .sql queries
+just lint        # ruff check + format check, mypy, sqlfluff for the .sql queries
 just fmt
 ```
 

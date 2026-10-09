@@ -60,11 +60,23 @@ async def test_refresh_reports_failing_source_and_stores_the_others(
     assert working.new_job_count == 3
 
 
+async def test_refresh_logs_failing_source(fake_http_client, database_url, parse_executor, caplog):
+    await _refresh(fake_http_client, database_url, parse_executor, [MISSING, DATADOG])
+
+    [warning] = [record for record in caplog.records if record.levelname == "WARNING"]
+    assert warning.getMessage().startswith("greenhouse/missing failed:")
+
+
 async def test_refresh_while_another_refresh_runs_fails_before_fetching(
     database_url, parse_executor
 ):
     requests: list[httpx.Request] = []
-    recording_transport = httpx.MockTransport(lambda request: requests.append(request))
+
+    def record_request(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200)
+
+    recording_transport = httpx.MockTransport(record_request)
     database = Database(database_url)
 
     async with (

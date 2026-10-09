@@ -47,7 +47,7 @@ async def test_fetch_all_reports_failing_source_and_keeps_the_others(
 
     failed, working = await _fetch_all(fake_http_client, parse_executor, sources)
 
-    assert expected_error in failed.error
+    assert expected_error in str(failed.error)
     assert failed.jobs == []
     assert len(working.jobs) == 3
 

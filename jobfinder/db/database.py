@@ -6,8 +6,8 @@ from contextlib import asynccontextmanager
 
 import psycopg
 
-from jobfinder.db.queries import load_query
 from jobfinder.db.session import DatabaseSession
+from jobfinder.db.sql import fetch_value, load_query
 
 # Every connection: without it, an unreachable server can hang for minutes on Windows.
 CONNECT_TIMEOUT_SECONDS = 10
@@ -54,9 +54,7 @@ class Database:
         # and the same dead connection can no longer write, so a run that lost the lock never
         # commits. The lock is taken in autocommit, so no transaction is open during the fetch.
         async with await self._connect(autocommit=True) as connection:
-            lock_cursor = await connection.execute(_TRY_LOCK_REFRESHES)
-            [lock_taken] = await lock_cursor.fetchone()
-            if not lock_taken:
+            if not await fetch_value(connection, _TRY_LOCK_REFRESHES):
                 raise RefreshAlreadyRunningError
             await connection.set_autocommit(False)  # from here, the work is one transaction
             async with DatabaseSession(connection) as session:

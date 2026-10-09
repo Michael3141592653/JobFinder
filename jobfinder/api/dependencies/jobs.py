@@ -5,9 +5,9 @@ from typing import Annotated
 
 from fastapi import Depends, Request
 
-from jobfinder.config import SourcesConfig
 from jobfinder.schema import JobSource
 from jobfinder.services.refresher import JobRefresher
+from jobfinder.sources import SourcesConfig
 
 
 # async when there is no blocking work: FastAPI runs a plain `def` dependency in a thread pool.
