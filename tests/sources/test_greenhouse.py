@@ -45,10 +45,10 @@ def test_parse_leaves_no_html_in_description(jobs, markup):
 
 
 def test_parse_rejects_job_missing_required_fields():
-    raw = '{"jobs": [{"id": 1, "title": "ML Engineer"}]}'
+    board_json = '{"jobs": [{"id": 1, "title": "ML Engineer"}]}'
 
     with pytest.raises(ValidationError):
-        greenhouse.parse(raw)
+        greenhouse.parse(board_json)
 
 
 @pytest.mark.parametrize(

@@ -7,6 +7,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 from pydantic.alias_generators import to_camel
 
+from jobfinder import http
 from jobfinder.schema import Job
 from jobfinder.text import html_to_text
 
@@ -60,12 +61,11 @@ class LeverJob(BaseModel):
 _Board = TypeAdapter(list[LeverJob])
 
 
-def parse(raw: bytes | str, company: str) -> list[Job]:
+def parse(board_json: bytes | str, company: str) -> list[Job]:
     """Lever doesn't return the company name, so the caller passes it in."""
-    return [job.to_job(company) for job in _Board.validate_json(raw)]
+    return [job.to_job(company) for job in _Board.validate_json(board_json)]
 
 
 async def fetch(client: httpx.AsyncClient, board: str) -> list[Job]:
-    response = await client.get(f"{BASE_URL}/{board}", params={"mode": "json"})
-    response.raise_for_status()
-    return parse(response.content, company=board)
+    board_json = await http.get(client, f"{BASE_URL}/{board}", params={"mode": "json"})
+    return parse(board_json, company=board)

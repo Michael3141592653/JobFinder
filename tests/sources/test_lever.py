@@ -54,7 +54,7 @@ def test_parse_leaves_no_html_in_description(jobs, markup):
 
 
 def test_parse_rejects_job_missing_required_fields():
-    raw = '[{"id": "abc", "text": "ML Engineer"}]'
+    board_json = '[{"id": "abc", "text": "ML Engineer"}]'
 
     with pytest.raises(ValidationError):
-        lever.parse(raw, company="spotify")
+        lever.parse(board_json, company="spotify")

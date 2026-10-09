@@ -7,6 +7,7 @@ from datetime import datetime
 import httpx
 from pydantic import BaseModel, ConfigDict
 
+from jobfinder import http
 from jobfinder.schema import Job
 from jobfinder.text import html_to_text
 
@@ -54,11 +55,10 @@ class _Board(BaseModel):
     jobs: list[GreenhouseJob]
 
 
-def parse(raw: bytes | str) -> list[Job]:
-    return [job.to_job() for job in _Board.model_validate_json(raw).jobs]
+def parse(board_json: bytes | str) -> list[Job]:
+    return [job.to_job() for job in _Board.model_validate_json(board_json).jobs]
 
 
 async def fetch(client: httpx.AsyncClient, board: str) -> list[Job]:
-    response = await client.get(f"{BASE_URL}/{board}/jobs", params={"content": "true"})
-    response.raise_for_status()
-    return parse(response.content)
+    board_json = await http.get(client, f"{BASE_URL}/{board}/jobs", params={"content": "true"})
+    return parse(board_json)

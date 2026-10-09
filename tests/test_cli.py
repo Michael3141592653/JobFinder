@@ -1,7 +1,10 @@
 from jobfinder.cli import main
 
 
-def test_run_command_prints_placeholder(capsys):
-    main(["run"])
+def test_run_command_with_no_boards_prints_zero_total(tmp_path, capsys):
+    boards = tmp_path / "boards.toml"
+    boards.write_text("")
 
-    assert "nothing to run yet" in capsys.readouterr().out
+    main(["run", "--boards", str(boards)])
+
+    assert capsys.readouterr().out == "0 jobs total\n"
