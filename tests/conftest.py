@@ -1,4 +1,5 @@
 import os
+from collections.abc import Callable
 from pathlib import Path
 
 import httpx
@@ -6,6 +7,9 @@ import psycopg
 import pytest
 from alembic import command
 from alembic.config import Config
+from tenacity import wait_none
+
+from jobfinder.http_client import HttpClient
 
 # A separate database (see docker-compose.yml), so tests never touch your real jobs.
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
@@ -33,9 +37,11 @@ def _fake_provider_server(request: httpx.Request) -> httpx.Response:
 
 
 @pytest.fixture
-def fake_provider_transport() -> httpx.MockTransport:
-    """Pass to HttpClient(transport=...) to fetch from the fake server instead of the internet."""
-    return httpx.MockTransport(_fake_provider_server)
+def fake_http_client() -> Callable[[], HttpClient]:
+    """Builds HttpClients that fetch from the fake server instead of the internet, with no waits
+    between retries."""
+    transport = httpx.MockTransport(_fake_provider_server)
+    return lambda: HttpClient(transport=transport, retry_wait=wait_none())
 
 
 def _migrate(database_url: str) -> None:

@@ -1,7 +1,10 @@
+import threading
 from datetime import UTC, datetime, timedelta
 
+import psycopg
 from psycopg.rows import dict_row
 
+from jobfinder.db.session import DatabaseSession
 from jobfinder.db.store import JobStore
 from jobfinder.schema import Job, JobSource, JobSourceFetchResult
 
@@ -39,6 +42,12 @@ def _job_rows(connection) -> dict[str, dict]:
 
 def _company_row(connection) -> dict:
     return connection.cursor(row_factory=dict_row).execute("SELECT * FROM companies").fetchone()
+
+
+def _lock_updates_and_commit(connection: psycopg.Connection) -> None:
+    with DatabaseSession(connection) as session:
+        session.jobs.lock_updates()
+        session.commit()
 
 
 def test_save_counts_every_job_of_first_fetch_as_new(connection):
@@ -133,3 +142,17 @@ def test_delete_closed_jobs_removes_only_jobs_closed_before_cutoff(connection):
     store.delete_closed_jobs(closed_before=DAY_3)
 
     assert _job_rows(connection).keys() == {"open", "closed-day-3"}
+
+
+def test_lock_updates_makes_second_update_wait_until_first_commits(database_url):
+    with psycopg.connect(database_url) as first, psycopg.connect(database_url) as second:
+        with DatabaseSession(first) as first_session:
+            first_session.jobs.lock_updates()
+            second_update = threading.Thread(target=_lock_updates_and_commit, args=[second])
+            second_update.start()
+            second_update.join(timeout=0.5)
+            assert second_update.is_alive()  # still waiting for the first update's lock
+            first_session.commit()
+
+        second_update.join(timeout=5)
+        assert not second_update.is_alive()

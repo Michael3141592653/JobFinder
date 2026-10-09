@@ -20,6 +20,7 @@ _SAVE_JOB = _load_query("save_job")
 _CLOSE_MISSING_JOBS = _load_query("close_missing_jobs")
 _COUNT_NEW_JOBS = _load_query("count_new_jobs")
 _DELETE_CLOSED_JOBS = _load_query("delete_closed_jobs")
+_LOCK_UPDATES = _load_query("lock_updates")
 
 
 def _company_name(jobs: list[Job]) -> str | None:
@@ -28,7 +29,7 @@ def _company_name(jobs: list[Job]) -> str | None:
 
 
 class JobStore:
-    """Saves fetch results. The caller owns the connection, so it decides when to commit."""
+    """Reads and writes jobs. It never commits: the DatabaseSession around it decides that."""
 
     def __init__(self, connection: psycopg.Connection) -> None:
         self._connection = connection
@@ -64,13 +65,17 @@ class JobStore:
 
         A failed fetch only records the error: its jobs stay open, since they weren't checked.
         """
-        name = _company_name(result.jobs)  # None when the fetch failed: it has no jobs
+        name = _company_name(result.jobs)
         company_id = self._save_company(result.source, seen_at, name, result.error)
         if result.error:
             return 0
         self._save_jobs(company_id, result.jobs, seen_at)
         self._close_missing_jobs(company_id, seen_at)
         return self._count_new_jobs(company_id, seen_at)
+
+    def lock_updates(self) -> None:
+        """Wait until no other update is storing; the lock is held until commit or rollback."""
+        self._connection.execute(_LOCK_UPDATES)
 
     def delete_closed_jobs(self, closed_before: datetime) -> None:
         self._connection.execute(_DELETE_CLOSED_JOBS, {"closed_before": closed_before})

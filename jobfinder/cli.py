@@ -2,11 +2,8 @@ import argparse
 import asyncio
 from pathlib import Path
 
-import psycopg
-
 from jobfinder.config import SourcesConfig
-from jobfinder.db.settings import database_url
-from jobfinder.db.store import JobStore
+from jobfinder.db.database import Database
 from jobfinder.fetcher import JobFetcher
 from jobfinder.http_client import HttpClient
 from jobfinder.providers import PROVIDERS
@@ -38,17 +35,15 @@ def _print_summary(updates: list[SourceUpdate]) -> None:
     print(f"{job_count} jobs total ({new_job_count} new)")
 
 
-async def _fetch_all_jobs(sources: list[JobSource]) -> list[JobSourceFetchResult]:
+async def _fetch_source(source: JobSource) -> JobSourceFetchResult:
     async with HttpClient() as http:
-        return await JobFetcher(http).fetch_all(sources)
+        return await JobFetcher(http).fetch_source(source)
 
 
 async def _update_jobs(sources: list[JobSource]) -> list[SourceUpdate]:
-    # Connect before fetching: a missing .env or a stopped Postgres fails before the slow part.
-    with psycopg.connect(database_url()) as connection:
-        async with HttpClient() as http:
-            updater = JobUpdater(JobFetcher(http), JobStore(connection))
-            return await updater.update(sources)
+    database = Database.from_env()  # fails right away if DATABASE_URL is not set
+    async with HttpClient() as http:
+        return await JobUpdater(JobFetcher(http), database).update(sources)
 
 
 def _cmd_run(args: argparse.Namespace) -> None:
@@ -58,7 +53,7 @@ def _cmd_run(args: argparse.Namespace) -> None:
 
 
 def _cmd_fetch(args: argparse.Namespace) -> None:
-    [result] = asyncio.run(_fetch_all_jobs([JobSource(args.provider, args.slug)]))
+    result = asyncio.run(_fetch_source(JobSource(args.provider, args.slug)))
     if result.error:
         print(_failure_line(result))
     else:
