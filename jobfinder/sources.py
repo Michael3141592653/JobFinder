@@ -18,9 +18,11 @@ class SourcesConfig(RootModel[dict[str, list[str]]]):
     @field_validator("root")
     @classmethod
     def _providers_must_exist(cls, slugs_by_provider: dict[str, list[str]]) -> dict[str, list[str]]:
-        unknown = slugs_by_provider.keys() - PROVIDERS.keys()
-        if unknown:
-            raise ValueError(f"unknown providers {sorted(unknown)}, known: {sorted(PROVIDERS)}")
+        unknown_providers = slugs_by_provider.keys() - PROVIDERS.keys()
+        if unknown_providers:
+            raise ValueError(
+                f"unknown providers {sorted(unknown_providers)}, known: {sorted(PROVIDERS)}"
+            )
         return slugs_by_provider
 
     @classmethod

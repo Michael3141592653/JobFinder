@@ -31,7 +31,7 @@ class Database:
             self._url, autocommit=autocommit, connect_timeout=CONNECT_TIMEOUT_SECONDS
         )
 
-    async def check(self) -> None:
+    async def check_connection(self) -> None:
         """Fail now if the database can't be reached, e.g. at startup."""
         connection = await self._connect()
         await connection.close()

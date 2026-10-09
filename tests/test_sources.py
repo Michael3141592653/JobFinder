@@ -17,9 +17,9 @@ def test_sources_config_reads_providers_and_slugs_from_toml(tmp_path):
     content = 'greenhouse = ["datadog"]\nlever = ["spotify", "palantir"]'
     sources_file = _write_sources_file(tmp_path, content)
 
-    config = SourcesConfig.from_toml(sources_file)
+    sources_config = SourcesConfig.from_toml(sources_file)
 
-    assert config.sources() == [
+    assert sources_config.sources() == [
         JobSource("greenhouse", "datadog"),
         JobSource("lever", "spotify"),
         JobSource("lever", "palantir"),

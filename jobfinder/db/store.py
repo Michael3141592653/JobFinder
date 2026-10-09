@@ -28,20 +28,20 @@ class JobStore:
         self._connection = connection
 
     async def _save_company(
-        self, source: JobSource, refresh_time: datetime, name: str | None, error: str | None
+        self, source: JobSource, refresh_time: datetime, company_name: str | None, error: str | None
     ) -> int:
         params = {
             "provider": source.provider,
             "slug": source.slug,
-            "name": name,
+            "name": company_name,
             "refresh_time": refresh_time,
             "error": error,
         }
         return await fetch_value(self._connection, _SAVE_COMPANY, params)
 
     async def _save_jobs(self, company_id: int, jobs: list[Job], refresh_time: datetime) -> None:
-        run_params = {"company_id": company_id, "refresh_time": refresh_time}
-        params = [job.model_dump() | run_params for job in jobs]
+        shared_params = {"company_id": company_id, "refresh_time": refresh_time}
+        params = [job.model_dump() | shared_params for job in jobs]
         async with self._connection.cursor() as job_cursor:
             await job_cursor.executemany(_SAVE_JOB, params)
 
@@ -53,16 +53,18 @@ class JobStore:
         params = {"company_id": company_id, "refresh_time": refresh_time}
         return await fetch_value(self._connection, _COUNT_NEW_JOBS, params)
 
-    async def save(self, result: JobSourceFetchResult, refresh_time: datetime) -> int:
+    async def save(self, fetch_result: JobSourceFetchResult, refresh_time: datetime) -> int:
         """Store one source's fetch and return how many of its jobs are new.
 
         A failed fetch only records the error: its jobs stay open, since they weren't checked.
         """
-        name = _company_name(result.jobs)
-        company_id = await self._save_company(result.source, refresh_time, name, result.error)
-        if result.error:
+        company_name = _company_name(fetch_result.jobs)
+        company_id = await self._save_company(
+            fetch_result.source, refresh_time, company_name, fetch_result.error
+        )
+        if fetch_result.error:
             return 0
-        await self._save_jobs(company_id, result.jobs, refresh_time)
+        await self._save_jobs(company_id, fetch_result.jobs, refresh_time)
         await self._close_missing_jobs(company_id, refresh_time)
         return await self._count_new_jobs(company_id, refresh_time)
 

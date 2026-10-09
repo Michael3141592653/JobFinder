@@ -17,8 +17,8 @@ class Provider(ABC):
 
     name: ClassVar[str]  # used in sources.toml
 
-    def __init__(self, http: HttpClient, parse_executor: Executor) -> None:
-        self._http = http
+    def __init__(self, http_client: HttpClient, parse_executor: Executor) -> None:
+        self._http_client = http_client
         self._parse_executor = parse_executor
 
     @abstractmethod
@@ -31,7 +31,7 @@ class Provider(ABC):
         """Validate the response body and map each raw job to a Job."""
 
     async def fetch(self, slug: str) -> list[Job]:
-        response_body = await self._http.get(self.jobs_url(slug))
+        response_body = await self._http_client.get(self.jobs_url(slug))
         # Off the event loop: parsing a big company is pure-Python CPU work (~0.6 s for 9 MB).
         # The app passes a process pool: a thread would still hold the GIL and slow the loop;
         # tests pass a thread pool, which is faster to start.

@@ -18,10 +18,10 @@ class SourceRefreshReport(BaseModel):
     @classmethod
     def from_source_refresh(cls, source_refresh: SourceRefresh) -> Self:
         return cls(
-            source=str(source_refresh.result.source),
-            job_count=len(source_refresh.result.jobs),
+            source=str(source_refresh.fetch_result.source),
+            job_count=len(source_refresh.fetch_result.jobs),
             new_job_count=source_refresh.new_job_count,
-            error=source_refresh.result.error,
+            error=source_refresh.fetch_result.error,
         )
 
 

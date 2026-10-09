@@ -24,8 +24,10 @@ async def _refresh(
     parse_executor: Executor,
     sources: list[JobSource],
 ) -> list[SourceRefresh]:
-    async with fake_http_client() as http:
-        job_refresher = JobRefresher(JobFetcher(http, parse_executor), Database(database_url))
+    async with fake_http_client() as http_client:
+        job_refresher = JobRefresher(
+            JobFetcher(http_client, parse_executor), Database(database_url)
+        )
         return await job_refresher.refresh(sources)
 
 
@@ -56,7 +58,7 @@ async def test_refresh_reports_failing_source_and_stores_the_others(
         fake_http_client, database_url, parse_executor, [MISSING, DATADOG]
     )
 
-    assert failed.result.error
+    assert failed.fetch_result.error
     assert working.new_job_count == 3
 
 
@@ -81,8 +83,8 @@ async def test_refresh_while_another_refresh_runs_fails_before_fetching(
 
     async with (
         database.refresh_session(),
-        HttpClient(transport=recording_transport, retry_wait=wait_none()) as http,
+        HttpClient(transport=recording_transport, retry_wait=wait_none()) as http_client,
     ):
         with pytest.raises(RefreshAlreadyRunningError):
-            await JobRefresher(JobFetcher(http, parse_executor), database).refresh([DATADOG])
+            await JobRefresher(JobFetcher(http_client, parse_executor), database).refresh([DATADOG])
     assert requests == []

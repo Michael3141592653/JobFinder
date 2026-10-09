@@ -21,7 +21,7 @@ from jobfinder.sources import SOURCES_FILE
 
 # Processes that parse the job boards' responses. Each one starts on the first refresh after
 # startup (about 2 s each on Windows), then stays for the next ones.
-PARSE_PROCESSES = 4
+MAX_PARSE_PROCESSES = 4
 
 
 def _lifespan(
@@ -32,7 +32,7 @@ def _lifespan(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-        await database.check()
+        await database.check_connection()
         async with http_client:
             with parse_executor:
                 yield
@@ -68,5 +68,5 @@ def app_from_env() -> FastAPI:
         HttpClient(),
         SOURCES_FILE,
         settings.service_token,
-        ProcessPoolExecutor(max_workers=PARSE_PROCESSES),
+        ProcessPoolExecutor(max_workers=MAX_PARSE_PROCESSES),
     )

@@ -15,8 +15,8 @@ async def _fetch_all(
     parse_executor: Executor,
     sources: list[JobSource],
 ) -> list[JobSourceFetchResult]:
-    async with fake_http_client() as http:
-        return await JobFetcher(http, parse_executor).fetch_all(sources)
+    async with fake_http_client() as http_client:
+        return await JobFetcher(http_client, parse_executor).fetch_all(sources)
 
 
 @pytest.mark.parametrize(
@@ -27,9 +27,9 @@ async def _fetch_all(
     ],
 )
 async def test_fetch_all_returns_jobs_for_working_source(fake_http_client, parse_executor, source):
-    [result] = await _fetch_all(fake_http_client, parse_executor, [source])
+    [fetch_result] = await _fetch_all(fake_http_client, parse_executor, [source])
 
-    assert (result.error, len(result.jobs)) == (None, 3)
+    assert (fetch_result.error, len(fetch_result.jobs)) == (None, 3)
 
 
 @pytest.mark.parametrize(
@@ -56,6 +56,6 @@ async def test_fetch_all_parses_in_a_process_pool(fake_http_client):
     with ProcessPoolExecutor(max_workers=1) as parse_processes:
         sources = [JobSource("greenhouse", "datadog")]
 
-        [result] = await _fetch_all(fake_http_client, parse_processes, sources)
+        [fetch_result] = await _fetch_all(fake_http_client, parse_processes, sources)
 
-    assert len(result.jobs) == 3  # the jobs could be sent to the process and back
+    assert len(fetch_result.jobs) == 3  # the jobs could be sent to the process and back

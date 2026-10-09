@@ -21,9 +21,9 @@ class JobFetcher:
     """Fetches jobs from every provider through one shared HttpClient, and parses them in
     parse_executor (a process pool in the app, a thread pool in tests)."""
 
-    def __init__(self, http: HttpClient, parse_executor: Executor) -> None:
+    def __init__(self, http_client: HttpClient, parse_executor: Executor) -> None:
         self._providers = {
-            name: provider(http, parse_executor) for name, provider in PROVIDERS.items()
+            name: provider(http_client, parse_executor) for name, provider in PROVIDERS.items()
         }
 
     async def fetch_source(self, source: JobSource) -> JobSourceFetchResult:

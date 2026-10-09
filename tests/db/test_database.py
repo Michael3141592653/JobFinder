@@ -11,7 +11,7 @@ pytestmark = pytest.mark.anyio
 
 # A failed fetch is the smallest save: it writes only the company row.
 FAILED_FETCH = JobSourceFetchResult(JobSource("greenhouse", "datadog"), error="404 Not Found")
-NOW = datetime(2026, 10, 1, tzinfo=UTC)
+REFRESH_TIME = datetime(2026, 10, 1, tzinfo=UTC)
 
 
 def _committed_company_count(database_url: str) -> int:
@@ -24,13 +24,13 @@ def _committed_company_count(database_url: str) -> int:
 
 async def _save_then_crash(database: Database) -> None:
     async with database.session() as session:
-        await session.jobs.save(FAILED_FETCH, NOW)
+        await session.jobs.save(FAILED_FETCH, REFRESH_TIME)
         raise RuntimeError("crash before commit")
 
 
 async def test_database_session_commit_saves_the_work(database_url):
     async with Database(database_url).session() as session:
-        await session.jobs.save(FAILED_FETCH, NOW)
+        await session.jobs.save(FAILED_FETCH, REFRESH_TIME)
         await session.commit()
 
     assert _committed_company_count(database_url) == 1
@@ -38,7 +38,7 @@ async def test_database_session_commit_saves_the_work(database_url):
 
 async def test_database_session_without_commit_saves_nothing(database_url):
     async with Database(database_url).session() as session:
-        await session.jobs.save(FAILED_FETCH, NOW)
+        await session.jobs.save(FAILED_FETCH, REFRESH_TIME)
 
     assert _committed_company_count(database_url) == 0
 
@@ -54,7 +54,7 @@ async def test_database_check_with_missing_database_fails(database_url):
     missing_database = make_conninfo(database_url, dbname="does_not_exist")
 
     with pytest.raises(psycopg.OperationalError, match="does_not_exist"):
-        await Database(missing_database).check()
+        await Database(missing_database).check_connection()
 
 
 def _drop_the_refresh_lock_connection(database_url: str) -> None:
@@ -68,7 +68,7 @@ def _drop_the_refresh_lock_connection(database_url: str) -> None:
 async def _save_after_losing_the_refresh_lock(database_url: str) -> None:
     async with Database(database_url).refresh_session() as session:
         _drop_the_refresh_lock_connection(database_url)
-        await session.jobs.save(FAILED_FETCH, NOW)
+        await session.jobs.save(FAILED_FETCH, REFRESH_TIME)
         await session.commit()
 
 
