@@ -12,8 +12,8 @@ from jobfinder.api.exceptions import add_exception_handlers
 from jobfinder.api.main import api_router
 from jobfinder.config import SOURCES_FILE
 from jobfinder.db.database import Database
-from jobfinder.fetcher import JobFetcher
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.fetcher import JobFetcher
+from jobfinder.providers.http_client import HttpClient
 from jobfinder.services.refresher import JobRefresher
 from jobfinder.settings import Settings
 

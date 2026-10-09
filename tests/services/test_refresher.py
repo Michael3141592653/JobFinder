@@ -5,8 +5,8 @@ import pytest
 from tenacity import wait_none
 
 from jobfinder.db.database import Database, RefreshAlreadyRunningError
-from jobfinder.fetcher import JobFetcher
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.fetcher import JobFetcher
+from jobfinder.providers.http_client import HttpClient
 from jobfinder.schema import JobSource
 from jobfinder.services.refresher import JobRefresher, SourceRefresh
 

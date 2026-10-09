@@ -3,8 +3,8 @@ from collections.abc import Callable
 
 import pytest
 
-from jobfinder.fetcher import JobFetcher
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.fetcher import JobFetcher
+from jobfinder.providers.http_client import HttpClient
 from jobfinder.schema import JobSource, JobSourceFetchResult
 
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import ClassVar
 
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.http_client import HttpClient
 from jobfinder.schema import Job
 
 

@@ -10,7 +10,7 @@ from alembic import command
 from alembic.config import Config
 from tenacity import wait_none
 
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.http_client import HttpClient
 
 # A separate database (see docker-compose.yml), so tests never touch your real jobs.
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")

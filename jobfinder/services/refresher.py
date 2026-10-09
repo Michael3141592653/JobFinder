@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from jobfinder.db.database import Database
 from jobfinder.db.store import JobStore
-from jobfinder.fetcher import JobFetcher
+from jobfinder.providers.fetcher import JobFetcher
 from jobfinder.schema import JobSource, JobSourceFetchResult
 
 # ponytail: fixed retention; make it a setting if someone needs closed jobs for longer.

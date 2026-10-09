@@ -10,8 +10,8 @@ from pydantic import SecretStr
 
 from jobfinder.db.database import Database
 from jobfinder.db.queries import load_query
-from jobfinder.http_client import HttpClient
 from jobfinder.main import create_app
+from jobfinder.providers.http_client import HttpClient
 
 SERVICE_TOKEN = "test-service-token"
 

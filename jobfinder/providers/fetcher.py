@@ -5,8 +5,8 @@ import asyncio
 import httpx
 from pydantic import ValidationError
 
-from jobfinder.http_client import HttpClient
 from jobfinder.providers import PROVIDERS
+from jobfinder.providers.http_client import HttpClient
 from jobfinder.schema import JobSource, JobSourceFetchResult
 
 
