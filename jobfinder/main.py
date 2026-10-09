@@ -1,9 +1,9 @@
 """The app: builds the services once, then serves the API. Run with `just run-api`; the docs
 are at /docs."""
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 from concurrent.futures import Executor, ProcessPoolExecutor
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -23,15 +23,20 @@ from jobfinder.settings import Settings
 PARSE_PROCESSES = 4
 
 
-@asynccontextmanager
-async def _lifespan(app: FastAPI) -> AsyncGenerator[None]:
+def _lifespan(
+    database: Database, http_client: HttpClient, parse_executor: Executor
+) -> Callable[[FastAPI], AbstractAsyncContextManager[None]]:
     """At startup, fail if Postgres can't be reached; at shutdown, close the HTTP connections
     and stop the parse processes."""
-    await app.state.database.check()
-    async with app.state.http_client:
-        yield
-    if app.state.parse_executor:
-        app.state.parse_executor.shutdown(cancel_futures=True)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+        await database.check()
+        async with http_client:
+            with parse_executor:
+                yield
+
+    return lifespan
 
 
 def create_app(
@@ -39,14 +44,11 @@ def create_app(
     http_client: HttpClient,
     sources_file: Path,
     service_token: SecretStr,
-    parse_executor: Executor | None = None,
+    parse_executor: Executor,
 ) -> FastAPI:
-    """The app with its dependencies passed in, so tests can pass a fake provider server.
-    parse_executor None parses in threads: fine for tests, but it slows the event loop."""
-    app = FastAPI(title="JobFinder", lifespan=_lifespan)
-    app.state.database = database
-    app.state.http_client = http_client
-    app.state.parse_executor = parse_executor
+    """The app with its dependencies passed in, so tests can pass a fake provider server and
+    parse in threads. app.state holds only what the endpoints read."""
+    app = FastAPI(title="JobFinder", lifespan=_lifespan(database, http_client, parse_executor))
     app.state.job_refresher = JobRefresher(JobFetcher(http_client, parse_executor), database)
     app.state.sources_file = sources_file
     app.state.service_token = service_token

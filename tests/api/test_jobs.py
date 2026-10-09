@@ -1,5 +1,5 @@
-import asyncio
 from collections.abc import Callable, Generator
+from concurrent.futures import Executor
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -25,13 +25,22 @@ def sources_file(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def api_client(
-    fake_http_client: Callable[[], HttpClient], database_url: str, sources_file: Path
+    fake_http_client: Callable[[], HttpClient],
+    database_url: str,
+    sources_file: Path,
+    parse_executor: Executor,
+    anyio_backend: tuple[str, dict],
 ) -> Generator[TestClient]:
-    database = Database(database_url)
-    app = create_app(database, fake_http_client(), sources_file, SecretStr(SERVICE_TOKEN))
-    # `with` runs startup and shutdown. SelectorEventLoop: see anyio_backend in conftest.py.
-    selector_loop = {"loop_factory": asyncio.SelectorEventLoop}
-    with TestClient(app, backend_options=selector_loop) as api_client:
+    app = create_app(
+        Database(database_url),
+        fake_http_client(),
+        sources_file,
+        SecretStr(SERVICE_TOKEN),
+        parse_executor,
+    )
+    backend, backend_options = anyio_backend  # the same event loop as the async tests
+    # `with` runs startup and shutdown.
+    with TestClient(app, backend=backend, backend_options=backend_options) as api_client:
         yield api_client
 
 

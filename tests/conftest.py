@@ -1,6 +1,7 @@
 import asyncio
 import os
-from collections.abc import AsyncGenerator, Callable
+from collections.abc import AsyncGenerator, Callable, Generator
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import httpx
@@ -69,6 +70,13 @@ def database_url(migrated_database_url: str) -> str:
     with psycopg.connect(migrated_database_url) as connection:
         connection.execute("TRUNCATE companies, jobs")
     return migrated_database_url
+
+
+@pytest.fixture
+def parse_executor() -> Generator[ThreadPoolExecutor]:
+    """Threads, not the app's processes: they start instantly, and tests don't measure speed."""
+    with ThreadPoolExecutor() as parse_threads:
+        yield parse_threads
 
 
 @pytest.fixture

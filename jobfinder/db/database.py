@@ -25,11 +25,15 @@ class Database:
     def __init__(self, url: str) -> None:
         self._url = url
 
+    async def _connect(self, autocommit: bool = False) -> psycopg.AsyncConnection:
+        """Every connection goes through here, so each one gets the timeout."""
+        return await psycopg.AsyncConnection.connect(
+            self._url, autocommit=autocommit, connect_timeout=CONNECT_TIMEOUT_SECONDS
+        )
+
     async def check(self) -> None:
         """Fail now if the database can't be reached, e.g. at startup."""
-        connection = await psycopg.AsyncConnection.connect(
-            self._url, connect_timeout=CONNECT_TIMEOUT_SECONDS
-        )
+        connection = await self._connect()
         await connection.close()
 
     @asynccontextmanager
@@ -37,12 +41,7 @@ class Database:
         """A fresh connection and transaction, closed afterwards. Save with session.commit()."""
         # ponytail: one connection per session; take it from a psycopg_pool.AsyncConnectionPool
         # opened once here when requests come often (search, phase 2).
-        async with (
-            await psycopg.AsyncConnection.connect(
-                self._url, connect_timeout=CONNECT_TIMEOUT_SECONDS
-            ) as connection,
-            DatabaseSession(connection) as session,
-        ):
+        async with await self._connect() as connection, DatabaseSession(connection) as session:
             yield session
 
     @asynccontextmanager
@@ -54,9 +53,7 @@ class Database:
         # The lock and the writes share one connection: if it drops, Postgres releases the lock,
         # and the same dead connection can no longer write, so a run that lost the lock never
         # commits. The lock is taken in autocommit, so no transaction is open during the fetch.
-        async with await psycopg.AsyncConnection.connect(
-            self._url, autocommit=True, connect_timeout=CONNECT_TIMEOUT_SECONDS
-        ) as connection:
+        async with await self._connect(autocommit=True) as connection:
             lock_cursor = await connection.execute(_TRY_LOCK_REFRESHES)
             [lock_taken] = await lock_cursor.fetchone()
             if not lock_taken:

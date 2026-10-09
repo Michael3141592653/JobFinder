@@ -19,9 +19,9 @@ def _failure_reason(error: Exception) -> str:
 
 class JobFetcher:
     """Fetches jobs from every provider through one shared HttpClient, and parses them in
-    parse_executor (a process pool in the app; None: asyncio's default thread pool)."""
+    parse_executor (a process pool in the app, a thread pool in tests)."""
 
-    def __init__(self, http: HttpClient, parse_executor: Executor | None = None) -> None:
+    def __init__(self, http: HttpClient, parse_executor: Executor) -> None:
         self._providers = {
             name: provider(http, parse_executor) for name, provider in PROVIDERS.items()
         }
