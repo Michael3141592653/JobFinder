@@ -4,7 +4,7 @@ import psycopg
 import pytest
 from psycopg.conninfo import make_conninfo
 
-from jobfinder.db.database import Database
+from jobfinder.db.database import Database, UpdateAlreadyRunningError
 from jobfinder.schema import JobSource, JobSourceFetchResult
 
 # A failed fetch is the smallest save: it writes only the company row.
@@ -15,8 +15,8 @@ NOW = datetime(2026, 10, 1, tzinfo=UTC)
 def _committed_company_count(database_url: str) -> int:
     """Counted on a separate connection, which only sees committed data."""
     with psycopg.connect(database_url) as other_connection:
-        [count] = other_connection.execute("SELECT COUNT(*) FROM companies").fetchone()
-    return count
+        [company_count] = other_connection.execute("SELECT COUNT(*) FROM companies").fetchone()
+    return company_count
 
 
 def _save_then_crash(database: Database) -> None:
@@ -59,3 +59,20 @@ def test_database_from_env_without_url_fails(monkeypatch):
 
     with pytest.raises(RuntimeError, match="DATABASE_URL is not set"):
         Database.from_env()
+
+
+def test_update_lock_while_another_update_holds_it_fails(database_url):
+    database = Database(database_url)
+
+    with database.update_lock(), pytest.raises(UpdateAlreadyRunningError):  # noqa: SIM117
+        with database.update_lock():
+            pass
+
+
+def test_update_lock_is_free_again_after_the_update(database_url):
+    database = Database(database_url)
+    with database.update_lock():
+        pass
+
+    with database.update_lock():
+        pass  # taken again: no UpdateAlreadyRunningError

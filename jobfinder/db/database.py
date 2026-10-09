@@ -6,10 +6,17 @@ from typing import Self
 
 import psycopg
 
+from jobfinder.db.queries import load_query
 from jobfinder.db.session import DatabaseSession
 from jobfinder.db.settings import database_url
 
 CHECK_TIMEOUT_SECONDS = 10  # without it, an unreachable server can hang for minutes on Windows
+_TRY_LOCK_UPDATES = load_query("try_lock_updates")
+
+
+class UpdateAlreadyRunningError(RuntimeError):
+    def __init__(self) -> None:
+        super().__init__("another update is running: try again when it is done")
 
 
 class Database:
@@ -34,3 +41,18 @@ class Database:
         # opened once here when the FastAPI app arrives (many sessions per second).
         with psycopg.connect(self._url) as connection, DatabaseSession(connection) as session:
             yield session
+
+    @contextmanager
+    def update_lock(self) -> Iterator[None]:
+        """Only one update at a time, across processes and machines: hold it from before the fetch
+        until after the commit, so an older fetch can never be stored over a newer one.
+
+        Fails right away if another update holds it: that update is already fetching fresh jobs.
+        """
+        # Its own connection, with no transaction open during the slow fetch. Closing the
+        # connection releases the lock, also when the process crashes.
+        with psycopg.connect(self._url, autocommit=True) as connection:
+            [lock_taken] = connection.execute(_TRY_LOCK_UPDATES).fetchone()
+            if not lock_taken:
+                raise UpdateAlreadyRunningError
+            yield

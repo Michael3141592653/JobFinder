@@ -1,7 +1,11 @@
 import asyncio
 from collections.abc import Callable
 
-from jobfinder.db.database import Database
+import httpx
+import pytest
+from tenacity import wait_none
+
+from jobfinder.db.database import Database, UpdateAlreadyRunningError
 from jobfinder.fetcher import JobFetcher
 from jobfinder.http_client import HttpClient
 from jobfinder.schema import JobSource
@@ -42,3 +46,17 @@ def test_update_reports_failing_source_and_stores_the_others(fake_http_client, d
 
     assert failed.result.error
     assert working.new_job_count == 3
+
+
+def test_update_while_another_update_runs_fails_before_fetching(database_url):
+    requests: list[httpx.Request] = []
+    recording_transport = httpx.MockTransport(lambda request: requests.append(request))
+    database = Database(database_url)
+
+    async def update_while_another_runs() -> None:
+        async with HttpClient(transport=recording_transport, retry_wait=wait_none()) as http:
+            await JobUpdater(JobFetcher(http), database).update([DATADOG])
+
+    with database.update_lock(), pytest.raises(UpdateAlreadyRunningError):
+        asyncio.run(update_while_another_runs())
+    assert requests == []

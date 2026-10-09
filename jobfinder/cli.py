@@ -3,7 +3,7 @@ import asyncio
 from pathlib import Path
 
 from jobfinder.config import SourcesConfig
-from jobfinder.db.database import Database
+from jobfinder.db.database import Database, UpdateAlreadyRunningError
 from jobfinder.fetcher import JobFetcher
 from jobfinder.http_client import HttpClient
 from jobfinder.providers import PROVIDERS
@@ -49,7 +49,10 @@ async def _update_jobs(sources: list[JobSource]) -> list[SourceUpdate]:
 
 def _cmd_run(args: argparse.Namespace) -> None:
     config = SourcesConfig.from_toml(args.sources_file)
-    updates = asyncio.run(_update_jobs(config.sources()))
+    try:
+        updates = asyncio.run(_update_jobs(config.sources()))
+    except UpdateAlreadyRunningError as error:
+        raise SystemExit(f"jobfinder: {error}") from None
     _print_summary(updates)
 
 

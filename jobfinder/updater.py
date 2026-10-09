@@ -31,16 +31,18 @@ class JobUpdater:
     def _store_results(
         self, jobs: JobStore, results: list[JobSourceFetchResult]
     ) -> list[SourceUpdate]:
-        update_time = jobs.start_update()  # one time for the whole run: it marks which jobs are new
+        # One time for the whole run: it marks which jobs are new.
+        update_time = jobs.database_time()
         updates = [SourceUpdate(result, jobs.save(result, update_time)) for result in results]
         jobs.delete_closed_jobs(closed_before=update_time - KEEP_CLOSED_JOBS)
         return updates
 
     async def update(self, sources: list[JobSource]) -> list[SourceUpdate]:
         """Fetch, then store everything in one transaction, committed only once all of it is done:
-        a crash halfway saves nothing."""
-        results = await self._fetcher.fetch_all(sources)
-        with self._database.session() as session:  # only around the database work
-            updates = self._store_results(session.jobs, results)
-            session.commit()
+        a crash halfway saves nothing. Fails with UpdateAlreadyRunningError if one is running."""
+        with self._database.update_lock():
+            results = await self._fetcher.fetch_all(sources)
+            with self._database.session() as session:  # only around the database work
+                updates = self._store_results(session.jobs, results)
+                session.commit()
         return updates
