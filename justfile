@@ -15,8 +15,10 @@ db-up:
 db-migrate:
     uv run alembic upgrade head
 
-run *args:
-    uv run python -m jobfinder run {{args}}
+# serve the API on http://localhost:8000 (docs at /docs), reloading on code changes
+# (SelectorEventLoop: psycopg's async mode can't run on Windows' default ProactorEventLoop)
+run-api:
+    uv run uvicorn jobfinder.main:app_from_env --factory --reload --loop asyncio:SelectorEventLoop
 
 test *args:
     uv run pytest {{args}}
@@ -24,6 +26,7 @@ test *args:
 lint:
     uv run ruff check .
     uv run ruff format --check .
+    uv run mypy jobfinder tests
     uv run sqlfluff lint jobfinder/db/queries
 
 fmt:

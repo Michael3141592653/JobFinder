@@ -1,12 +1,13 @@
 """Fetch jobs from many job sources in parallel, without one failure stopping the rest."""
 
 import asyncio
+from concurrent.futures import Executor
 
 import httpx
 from pydantic import ValidationError
 
-from jobfinder.http_client import HttpClient
 from jobfinder.providers import PROVIDERS
+from jobfinder.providers.http_client import HttpClient
 from jobfinder.schema import JobSource, JobSourceFetchResult
 
 
@@ -17,10 +18,13 @@ def _failure_reason(error: Exception) -> str:
 
 
 class JobFetcher:
-    """Fetches jobs from every provider through one shared HttpClient."""
+    """Fetches jobs from every provider through one shared HttpClient, and parses them in
+    parse_executor (a process pool in the app, a thread pool in tests)."""
 
-    def __init__(self, http: HttpClient) -> None:
-        self._providers = {name: provider(http) for name, provider in PROVIDERS.items()}
+    def __init__(self, http_client: HttpClient, parse_executor: Executor) -> None:
+        self._providers = {
+            name: provider(http_client, parse_executor) for name, provider in PROVIDERS.items()
+        }
 
     async def fetch_source(self, source: JobSource) -> JobSourceFetchResult:
         try:
@@ -30,5 +34,8 @@ class JobFetcher:
         return JobSourceFetchResult(source, jobs=jobs)
 
     async def fetch_all(self, sources: list[JobSource]) -> list[JobSourceFetchResult]:
-        source_fetches = [self.fetch_source(source) for source in sources]
-        return await asyncio.gather(*source_fetches)
+        # TaskGroup, not gather: if one fetch fails unexpectedly, the others are cancelled
+        # instead of running on with nobody waiting for them.
+        async with asyncio.TaskGroup() as task_group:
+            fetch_tasks = [task_group.create_task(self.fetch_source(source)) for source in sources]
+        return [fetch_task.result() for fetch_task in fetch_tasks]

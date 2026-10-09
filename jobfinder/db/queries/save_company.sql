@@ -11,7 +11,7 @@ VALUES (
     %(provider)s,
     %(slug)s,
     COALESCE(%(name)s, %(slug)s),
-    %(update_time)s,
+    %(refresh_time)s,
     %(error)s
 )
 ON CONFLICT (provider, slug) DO UPDATE

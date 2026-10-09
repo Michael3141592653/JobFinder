@@ -21,7 +21,7 @@ def _is_retryable(error: BaseException) -> bool:
 
 
 class HttpClient:
-    """Use as `async with HttpClient() as http:` so connections are closed at the end."""
+    """Use as `async with HttpClient() as http_client:` so connections are closed at the end."""
 
     def __init__(
         self,

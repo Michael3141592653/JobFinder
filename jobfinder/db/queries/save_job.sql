@@ -1,4 +1,5 @@
--- Insert a new job, or update a known one: first_seen stays, last_seen moves, closed_at clears.
+-- Insert a new job, or update a known one: first_seen_at stays, last_seen_at moves,
+-- closed_at clears.
 INSERT INTO jobs (
     company_id,
     provider_job_id,
@@ -8,8 +9,8 @@ INSERT INTO jobs (
     description,
     posted_at,
     updated_at,
-    first_seen,
-    last_seen
+    first_seen_at,
+    last_seen_at
 )
 VALUES (
     %(company_id)s,
@@ -20,8 +21,8 @@ VALUES (
     %(description)s,
     %(posted_at)s,
     %(updated_at)s,
-    %(update_time)s,
-    %(update_time)s
+    %(refresh_time)s,
+    %(refresh_time)s
 )
 ON CONFLICT (company_id, provider_job_id) DO UPDATE
     SET
@@ -31,5 +32,5 @@ ON CONFLICT (company_id, provider_job_id) DO UPDATE
         description = excluded.description,
         posted_at = excluded.posted_at,
         updated_at = excluded.updated_at,
-        last_seen = excluded.last_seen,
+        last_seen_at = excluded.last_seen_at,
         closed_at = NULL;

@@ -36,8 +36,8 @@ def upgrade() -> None:
             description     text        NOT NULL,
             posted_at       timestamptz NOT NULL,
             updated_at      timestamptz,
-            first_seen      timestamptz NOT NULL,
-            last_seen       timestamptz NOT NULL,
+            first_seen_at   timestamptz NOT NULL,
+            last_seen_at    timestamptz NOT NULL,
             closed_at       timestamptz,
             UNIQUE (company_id, provider_job_id)
         )

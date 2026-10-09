@@ -1,22 +1,22 @@
-"""The database the app talks to: create one per app and open a short session per unit of work."""
+"""The database the app talks to: create one per app and open a short session per unit of work.
+Async (psycopg's AsyncConnection), so waiting on Postgres never blocks the API's event loop."""
 
-from collections.abc import Generator
-from contextlib import contextmanager
-from typing import Self
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 import psycopg
 
-from jobfinder.db.queries import load_query
 from jobfinder.db.session import DatabaseSession
-from jobfinder.db.settings import database_url
+from jobfinder.db.sql import fetch_value, load_query
 
-CHECK_TIMEOUT_SECONDS = 10  # without it, an unreachable server can hang for minutes on Windows
-_TRY_LOCK_UPDATES = load_query("try_lock_updates")
+# Every connection: without it, an unreachable server can hang for minutes on Windows.
+CONNECT_TIMEOUT_SECONDS = 10
+_TRY_LOCK_REFRESHES = load_query("try_lock_refreshes")
 
 
-class UpdateAlreadyRunningError(RuntimeError):
+class RefreshAlreadyRunningError(RuntimeError):
     def __init__(self) -> None:
-        super().__init__("another update is running: try again when it is done")
+        super().__init__("another refresh is running: try again when it is done")
 
 
 class Database:
@@ -25,36 +25,37 @@ class Database:
     def __init__(self, url: str) -> None:
         self._url = url
 
-    @classmethod
-    def from_env(cls) -> Self:
-        """The database in $DATABASE_URL; fails right away if it is not set."""
-        return cls(database_url())
+    async def _connect(self, autocommit: bool = False) -> psycopg.AsyncConnection:
+        """Every connection goes through here, so each one gets the timeout."""
+        return await psycopg.AsyncConnection.connect(
+            self._url, autocommit=autocommit, connect_timeout=CONNECT_TIMEOUT_SECONDS
+        )
 
-    def check(self) -> None:
-        """Fail now if the database can't be reached, e.g. before a slow fetch."""
-        psycopg.connect(self._url, connect_timeout=CHECK_TIMEOUT_SECONDS).close()
+    async def check_connection(self) -> None:
+        """Fail now if the database can't be reached, e.g. at startup."""
+        connection = await self._connect()
+        await connection.close()
 
-    @contextmanager
-    def session(self) -> Generator[DatabaseSession]:
+    @asynccontextmanager
+    async def session(self) -> AsyncGenerator[DatabaseSession]:
         """A fresh connection and transaction, closed afterwards. Save with session.commit()."""
-        # ponytail: one connection per session; take it from a psycopg_pool.ConnectionPool
-        # opened once here when the FastAPI app arrives (many sessions per second).
-        with psycopg.connect(self._url) as connection, DatabaseSession(connection) as session:
+        # ponytail: one connection per session; take it from a psycopg_pool.AsyncConnectionPool
+        # opened once here when requests come often (search, phase 2).
+        async with await self._connect() as connection, DatabaseSession(connection) as session:
             yield session
 
-    @contextmanager
-    def update_session(self) -> Generator[DatabaseSession]:
-        """A session that only one update holds at a time, across processes and machines. Hold it
+    @asynccontextmanager
+    async def refresh_session(self) -> AsyncGenerator[DatabaseSession]:
+        """A session that only one refresh holds at a time, across processes and machines. Hold it
         from before the fetch until after the commit, so an older fetch can never be stored over
-        a newer one. Fails right away if another update holds it: that one is already fetching.
+        a newer one. Fails right away if another refresh holds it: that one is already fetching.
         """
         # The lock and the writes share one connection: if it drops, Postgres releases the lock,
         # and the same dead connection can no longer write, so a run that lost the lock never
         # commits. The lock is taken in autocommit, so no transaction is open during the fetch.
-        with psycopg.connect(self._url, autocommit=True) as connection:
-            [lock_taken] = connection.execute(_TRY_LOCK_UPDATES).fetchone()
-            if not lock_taken:
-                raise UpdateAlreadyRunningError
-            connection.autocommit = False  # from here, the session's work is one transaction
-            with DatabaseSession(connection) as session:
+        async with await self._connect(autocommit=True) as connection:
+            if not await fetch_value(connection, _TRY_LOCK_REFRESHES):
+                raise RefreshAlreadyRunningError
+            await connection.set_autocommit(False)  # from here, the work is one transaction
+            async with DatabaseSession(connection) as session:
                 yield session

@@ -4,16 +4,16 @@ import httpx
 import pytest
 from tenacity import wait_none
 
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.http_client import HttpClient
 
 
 def _replay(outcomes: list[int | Exception], requests: list[httpx.Request]) -> httpx.MockTransport:
     """A fake server answering each request with the next status code or network error."""
-    pending = iter(outcomes)
+    remaining_outcomes = iter(outcomes)
 
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(request)
-        outcome = next(pending)
+        outcome = next(remaining_outcomes)
         if isinstance(outcome, Exception):
             raise outcome
         return httpx.Response(outcome, content=b"body")
@@ -24,8 +24,8 @@ def _replay(outcomes: list[int | Exception], requests: list[httpx.Request]) -> h
 def _get(outcomes: list[int | Exception], requests: list[httpx.Request]) -> bytes:
     async def run_against_fake_server() -> bytes:
         transport = _replay(outcomes, requests)
-        async with HttpClient(transport=transport, retry_wait=wait_none()) as http:
-            return await http.get("https://example.com")
+        async with HttpClient(transport=transport, retry_wait=wait_none()) as http_client:
+            return await http_client.get("https://example.com")
 
     return asyncio.run(run_against_fake_server())
 
@@ -44,15 +44,15 @@ def test_get_returns_body_on_success():
     ],
 )
 def test_get_retries_temporary_failure_then_succeeds(failure):
-    requests = []
+    requests: list[httpx.Request] = []
 
-    body = _get([failure, 200], requests)
+    response_body = _get([failure, 200], requests)
 
-    assert (body, len(requests)) == (b"body", 2)
+    assert (response_body, len(requests)) == (b"body", 2)
 
 
 def test_get_does_not_retry_client_error():
-    requests = []
+    requests: list[httpx.Request] = []
 
     with pytest.raises(httpx.HTTPStatusError):
         _get([404], requests)
@@ -61,7 +61,7 @@ def test_get_does_not_retry_client_error():
 
 
 def test_get_gives_up_after_three_attempts():
-    requests = []
+    requests: list[httpx.Request] = []
 
     with pytest.raises(httpx.HTTPStatusError):
         _get([503, 503, 503], requests)

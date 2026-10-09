@@ -1,6 +1,9 @@
+import asyncio
 import os
-from collections.abc import Callable
+from collections.abc import AsyncGenerator, Callable, Generator
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Literal
 
 import httpx
 import psycopg
@@ -9,7 +12,7 @@ from alembic import command
 from alembic.config import Config
 from tenacity import wait_none
 
-from jobfinder.http_client import HttpClient
+from jobfinder.providers.http_client import HttpClient
 
 # A separate database (see docker-compose.yml), so tests never touch your real jobs.
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
@@ -71,6 +74,20 @@ def database_url(migrated_database_url: str) -> str:
 
 
 @pytest.fixture
-def connection(database_url: str):
-    with psycopg.connect(database_url) as connection:
+def parse_executor() -> Generator[ThreadPoolExecutor]:
+    """Threads, not the app's processes: they start instantly, and tests don't measure speed."""
+    with ThreadPoolExecutor() as parse_threads:
+        yield parse_threads
+
+
+@pytest.fixture
+def anyio_backend() -> tuple[Literal["asyncio"], dict]:
+    """Async tests (@pytest.mark.anyio) run on asyncio's SelectorEventLoop: psycopg's async mode
+    can't run on Windows' default ProactorEventLoop."""
+    return "asyncio", {"loop_factory": asyncio.SelectorEventLoop}
+
+
+@pytest.fixture
+async def connection(database_url: str) -> AsyncGenerator[psycopg.AsyncConnection]:
+    async with await psycopg.AsyncConnection.connect(database_url) as connection:
         yield connection

@@ -1,4 +1,4 @@
-# Job sources fetched by `jobfinder run`: provider = [company slugs].
+# Job sources fetched by POST /jobs/refresh: provider = [company slugs].
 # The slug is the company's id in its careers page URL,
 # e.g. boards.greenhouse.io/datadog -> "datadog", jobs.lever.co/spotify -> "spotify".
 

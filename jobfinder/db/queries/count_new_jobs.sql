@@ -3,4 +3,4 @@ SELECT COUNT(*)
 FROM jobs
 WHERE
     company_id = %(company_id)s
-    AND first_seen = %(update_time)s;
+    AND first_seen_at = %(refresh_time)s;
