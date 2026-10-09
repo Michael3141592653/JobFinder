@@ -10,7 +10,7 @@ class Job(BaseModel):
     source_id: str
     company: str
     title: str
-    location: str
+    locations: list[str]
     url: str
     description: str  # plain text, no HTML
     posted_at: datetime

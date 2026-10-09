@@ -22,11 +22,11 @@ def test_parse_returns_every_job_on_the_board(jobs):
 def test_parse_maps_greenhouse_fields_to_job(jobs):
     job = jobs[1]
 
-    assert job.model_dump(include={"source", "source_id", "company", "location", "url"}) == {
+    assert job.model_dump(include={"source", "source_id", "company", "locations", "url"}) == {
         "source": "greenhouse",
         "source_id": "8204056",
         "company": "Datadog",
-        "location": "Italy, Remote; Spain, Remote",
+        "locations": ["Italy, Remote", "Spain, Remote"],
         "url": "https://careers.datadoghq.com/detail/8204056/?gh_jid=8204056",
     }
 
@@ -49,3 +49,17 @@ def test_parse_rejects_job_missing_required_fields():
 
     with pytest.raises(ValidationError):
         greenhouse.parse(raw)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        pytest.param("Tokyo, Japan", ["Tokyo, Japan"], id="single"),
+        pytest.param("Amsterdam, NL; Dublin, IE", ["Amsterdam, NL", "Dublin, IE"], id="semicolon"),
+        pytest.param("SF, CA | NYC, NY", ["SF, CA", "NYC, NY"], id="pipe"),
+        pytest.param("NYC, NY; SF, CA | NYC, NY", ["NYC, NY", "SF, CA"], id="drops-duplicates"),
+        pytest.param("London, Dublin", ["London, Dublin"], id="commas-not-split"),
+    ],
+)
+def test_split_locations(text, expected):
+    assert greenhouse.split_locations(text) == expected

@@ -23,11 +23,11 @@ def test_parse_returns_every_job_on_the_board(jobs):
 def test_parse_maps_lever_fields_to_job(jobs):
     job = jobs[0]
 
-    assert job.model_dump(include={"source", "source_id", "title", "location", "url"}) == {
+    assert job.model_dump(include={"source", "source_id", "title", "locations", "url"}) == {
         "source": "lever",
         "source_id": "2193db3f-77c5-43b8-b030-8f92c9882bf1",
         "title": "Android Engineer - Experience",
-        "location": "London",
+        "locations": ["London", "Stockholm"],
         "url": "https://jobs.lever.co/spotify/2193db3f-77c5-43b8-b030-8f92c9882bf1",
     }
 

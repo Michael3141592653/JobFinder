@@ -14,7 +14,9 @@ BASE_URL = "https://api.lever.co/v0/postings"
 
 
 class _Categories(BaseModel):
-    location: str
+    model_config = ConfigDict(alias_generator=to_camel)
+
+    all_locations: list[str]
 
 
 class _Section(BaseModel):
@@ -48,7 +50,7 @@ class LeverJob(BaseModel):
             source_id=self.id,
             company=company,
             title=self.text,
-            location=self.categories.location,
+            locations=self.categories.all_locations,
             url=self.hosted_url,
             description=html_to_text(self._full_description_html()),
             posted_at=self.created_at,

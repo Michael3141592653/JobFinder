@@ -1,6 +1,7 @@
 """Greenhouse job board API: https://developers.greenhouse.io/job-board.html"""
 
 import html
+import re
 from datetime import datetime
 
 import httpx
@@ -10,6 +11,13 @@ from jobfinder.schema import Job
 from jobfinder.text import html_to_text
 
 BASE_URL = "https://boards-api.greenhouse.io/v1/boards"
+
+
+def split_locations(text: str) -> list[str]:
+    """Greenhouse sends one free-text field; companies separate locations with ';' or '|'."""
+    # ponytail: commas, '&' and 'or' are ambiguous ("New York, NY"), so those stay one entry
+    parts = (part.strip() for part in re.split(r"[;|]", text))
+    return list(dict.fromkeys(part for part in parts if part))  # dedupe, keep order
 
 
 class _Location(BaseModel):
@@ -34,7 +42,7 @@ class GreenhouseJob(BaseModel):
             source_id=str(self.id),
             company=self.company_name,
             title=self.title,
-            location=self.location.name,
+            locations=split_locations(self.location.name),
             url=self.absolute_url,
             description=html_to_text(html.unescape(self.content)),
             posted_at=self.first_published,

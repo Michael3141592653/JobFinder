@@ -9,7 +9,7 @@ from jobfinder.sources import FETCHERS
 
 def _print_jobs(jobs: list[Job]) -> None:
     for job in jobs:
-        print(f"{job.title} | {job.location} | {job.url}")
+        print(f"{job.title} | {'; '.join(job.locations)} | {job.url}")
     print(f"{len(jobs)} jobs")
 
 
