@@ -5,9 +5,9 @@ import httpx
 import pytest
 from tenacity import wait_none
 
-from jobfinder.fetcher import FetchResult, JobFetcher
+from jobfinder.fetcher import JobFetcher
 from jobfinder.http_client import HttpClient
-from jobfinder.schema import JobSource
+from jobfinder.schema import JobSource, JobSourceFetchResult
 
 FIXTURES = Path(__file__).parent / "providers" / "fixtures"
 
@@ -30,8 +30,8 @@ def _fake_server(request: httpx.Request) -> httpx.Response:
     return httpx.Response(200, content=response_body)
 
 
-def _fetch_all(sources: list[JobSource]) -> list[FetchResult]:
-    async def run_against_fake_server() -> list[FetchResult]:
+def _fetch_all(sources: list[JobSource]) -> list[JobSourceFetchResult]:
+    async def run_against_fake_server() -> list[JobSourceFetchResult]:
         transport = httpx.MockTransport(_fake_server)
         async with HttpClient(transport=transport, retry_wait=wait_none()) as http:
             return await JobFetcher(http).fetch_all(sources)

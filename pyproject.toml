@@ -5,7 +5,9 @@ description = "Personal job finder: fetch jobs from ATS providers, rank, digest.
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.0",
     "httpx>=0.28.1",
+    "psycopg[binary]>=3.3.6",
     "pydantic>=2.14.0",
     "tenacity>=9.2.1",
 ]
@@ -14,7 +16,11 @@ dependencies = [
 jobfinder = "jobfinder.cli:main"
 
 [dependency-groups]
-dev = ["pytest", "ruff"]
+dev = [
+    "pytest",
+    "ruff",
+    "sqlfluff>=4.4.0",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -31,3 +37,23 @@ select = ["E", "F", "I", "UP", "B", "PT"]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"
 strict = true
+
+[tool.alembic]
+script_location = "%(here)s/jobfinder/db/migrations"
+
+[tool.sqlfluff.core]
+dialect = "postgres"
+templater = "placeholder"
+max_line_length = 100
+
+[tool.sqlfluff.templater.placeholder]
+param_style = "pyformat"  # psycopg's %(name)s
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "upper"
+
+[tool.sqlfluff.rules.capitalisation.functions]
+extended_capitalisation_policy = "upper"
+
+[tool.sqlfluff.rules.capitalisation.literals]
+capitalisation_policy = "upper"

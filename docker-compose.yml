@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: jobfinder
+      POSTGRES_PASSWORD: jobfinder
+      POSTGRES_DB: jobfinder
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/create-test-database.sql:/docker-entrypoint-initdb.d/create-test-database.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "jobfinder"]
+      interval: 2s
+      retries: 15
+
+volumes:
+  postgres-data:
