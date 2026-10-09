@@ -28,7 +28,7 @@ def _section_html(section: _Section) -> str:
     return f"<h3>{html.escape(section.heading)}</h3><ul>{section.content}</ul>"
 
 
-class LeverJob(BaseModel):
+class _LeverRawJob(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, str_strip_whitespace=True)
 
     id: str
@@ -46,7 +46,7 @@ class LeverJob(BaseModel):
 
     def to_job(self, company: str) -> Job:
         return Job(
-            source="lever",
+            source=LeverSource.name,
             source_id=self.id,
             company=company,
             title=self.title,
@@ -57,7 +57,7 @@ class LeverJob(BaseModel):
         )
 
 
-_BoardResponse = TypeAdapter(list[LeverJob])
+_BoardResponse = TypeAdapter(list[_LeverRawJob])
 
 
 class LeverSource(Source):
@@ -69,4 +69,5 @@ class LeverSource(Source):
     @classmethod
     def parse(cls, response_body: bytes | str, slug: str) -> list[Job]:
         """Lever doesn't return the company name, so the board slug stands in for it."""
-        return [job.to_job(company=slug) for job in _BoardResponse.validate_json(response_body)]
+        raw_jobs = _BoardResponse.validate_json(response_body)
+        return [raw_job.to_job(company=slug) for raw_job in raw_jobs]

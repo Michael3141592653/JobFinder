@@ -2,8 +2,9 @@ import argparse
 import asyncio
 from pathlib import Path
 
-from jobfinder.http import HttpClient
-from jobfinder.ingest import BoardResult, BoardsConfig, Ingestor
+from jobfinder.config import BoardsConfig
+from jobfinder.http_client import HttpClient
+from jobfinder.ingest import BoardResult, Ingestor
 from jobfinder.schema import Board, Job
 from jobfinder.sources import SOURCES
 
@@ -21,9 +22,9 @@ def _print_summary(results: list[BoardResult]) -> None:
     print(f"{sum(len(result.jobs) for result in results)} jobs total")
 
 
-async def _download_board(board: Board) -> list[Job]:
+async def _download_board(board: Board) -> BoardResult:
     async with HttpClient() as http:
-        return await SOURCES[board.source](http).fetch(board.slug)
+        return await Ingestor(http).fetch_board(board)
 
 
 async def _download_all(boards: list[Board]) -> list[BoardResult]:
@@ -38,8 +39,11 @@ def _cmd_run(args: argparse.Namespace) -> None:
 
 
 def _cmd_fetch(args: argparse.Namespace) -> None:
-    jobs = asyncio.run(_download_board(Board(args.source, args.slug)))
-    _print_jobs(jobs)
+    result = asyncio.run(_download_board(Board(args.source, args.slug)))
+    if result.error:
+        print(f"{result.board}: FAILED: {result.error}")
+    else:
+        _print_jobs(result.jobs)
 
 
 def _build_parser() -> argparse.ArgumentParser:

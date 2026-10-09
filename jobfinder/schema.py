@@ -16,7 +16,7 @@ class Board:
 
 
 class Job(BaseModel):
-    """A posting from any source, normalized."""
+    """A job from any source, mapped to one common shape."""
 
     source: str
     source_id: str

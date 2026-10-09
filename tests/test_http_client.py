@@ -4,7 +4,7 @@ import httpx
 import pytest
 from tenacity import wait_none
 
-from jobfinder.http import HttpClient
+from jobfinder.http_client import HttpClient
 
 
 def _replay(outcomes: list[int | Exception], requests: list[httpx.Request]) -> httpx.MockTransport:

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import ClassVar
 
-from jobfinder.http import HttpClient
+from jobfinder.http_client import HttpClient
 from jobfinder.schema import Job
 
 
@@ -23,7 +23,7 @@ class Source(ABC):
     @classmethod
     @abstractmethod
     def parse(cls, response_body: bytes | str, slug: str) -> list[Job]:
-        """Validate the response body and map each posting to a Job."""
+        """Validate the response body and map each raw job to a Job."""
 
     async def fetch(self, slug: str) -> list[Job]:
         response_body = await self._http.get(self.board_url(slug))

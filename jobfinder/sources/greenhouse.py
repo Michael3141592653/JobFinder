@@ -24,7 +24,7 @@ class _Location(BaseModel):
     name: str
 
 
-class GreenhouseJob(BaseModel):
+class _GreenhouseRawJob(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     id: int
@@ -38,7 +38,7 @@ class GreenhouseJob(BaseModel):
 
     def to_job(self) -> Job:
         return Job(
-            source="greenhouse",
+            source=GreenhouseSource.name,
             source_id=str(self.id),
             company=self.company_name,
             title=self.title,
@@ -51,7 +51,7 @@ class GreenhouseJob(BaseModel):
 
 
 class _BoardResponse(BaseModel):
-    jobs: list[GreenhouseJob]
+    jobs: list[_GreenhouseRawJob]
 
 
 class GreenhouseSource(Source):
@@ -62,4 +62,5 @@ class GreenhouseSource(Source):
 
     @classmethod
     def parse(cls, response_body: bytes | str, slug: str) -> list[Job]:
-        return [job.to_job() for job in _BoardResponse.model_validate_json(response_body).jobs]
+        raw_jobs = _BoardResponse.model_validate_json(response_body).jobs
+        return [raw_job.to_job() for raw_job in raw_jobs]

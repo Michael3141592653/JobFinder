@@ -1,6 +1,7 @@
 """Shared HTTP client: one configuration and GET with retries."""
 
 from types import TracebackType
+from typing import Self
 
 import httpx
 from tenacity import AsyncRetrying, retry_if_exception, stop_after_attempt, wait_exponential
@@ -41,7 +42,7 @@ class HttpClient:
             reraise=True,
         )
 
-    async def __aenter__(self) -> "HttpClient":
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(

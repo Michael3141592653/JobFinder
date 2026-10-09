@@ -1,6 +1,6 @@
 # JobFinder
 
-Personal job finder: pull postings from ATS boards, rank them, send a daily digest.
+Personal job finder: pull jobs from ATS boards, rank them, send a daily digest.
 
 ## Setup
 
@@ -23,4 +23,5 @@ just fmt
 | board | one company's job listing on one source: source + slug | `Board`, `boards: list[Board]` |
 | response body | the raw body of a source's HTTP response, before parsing | `response_body` |
 | boards file | `boards.toml`: the companies to follow, as slugs per source; `run` fetches all of them | `boards_file` (path), `BoardsConfig` (content) |
-| job | one posting, the same shape for every source | `Job` |
+| raw job | one job as a source's API returns it, before mapping | `_GreenhouseRawJob`, `_LeverRawJob` |
+| job | a raw job mapped to our common shape, the same for every source | `Job` |
