@@ -4,7 +4,7 @@ import asyncio
 import httpx
 
 from jobfinder.schema import Job
-from jobfinder.sources import greenhouse
+from jobfinder.sources import FETCHERS
 
 
 def _print_jobs(jobs: list[Job]) -> None:
@@ -13,9 +13,9 @@ def _print_jobs(jobs: list[Job]) -> None:
     print(f"{len(jobs)} jobs")
 
 
-async def _download_board(board: str) -> list[Job]:
+async def _download_board(source: str, board: str) -> list[Job]:
     async with httpx.AsyncClient(timeout=30) as client:
-        return await greenhouse.fetch(client, board)
+        return await FETCHERS[source](client, board)
 
 
 def _cmd_run(_args: argparse.Namespace) -> None:
@@ -23,7 +23,7 @@ def _cmd_run(_args: argparse.Namespace) -> None:
 
 
 def _cmd_fetch(args: argparse.Namespace) -> None:
-    jobs = asyncio.run(_download_board(args.board))
+    jobs = asyncio.run(_download_board(args.source, args.board))
     _print_jobs(jobs)
 
 
@@ -34,8 +34,8 @@ def _build_parser() -> argparse.ArgumentParser:
     commands.add_parser("run").set_defaults(handler=_cmd_run)
 
     fetch = commands.add_parser("fetch", help="fetch one board and print its jobs")
-    fetch.add_argument("source", choices=["greenhouse"])
-    fetch.add_argument("board", help="board slug, e.g. datadog")
+    fetch.add_argument("source", choices=FETCHERS)
+    fetch.add_argument("board", help="board slug, e.g. datadog or spotify")
     fetch.set_defaults(handler=_cmd_fetch)
 
     return parser

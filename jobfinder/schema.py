@@ -14,4 +14,4 @@ class Job(BaseModel):
     url: str
     description: str  # plain text, no HTML
     posted_at: datetime
-    updated_at: datetime
+    updated_at: datetime | None = None  # not every source reports it
