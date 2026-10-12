@@ -12,6 +12,7 @@ from alembic import command
 from alembic.config import Config
 from tenacity import wait_none
 
+from jobfinder.cv.text_extraction import DOCLING_MODELS, CvTextExtractor
 from jobfinder.providers.http_client import HttpClient
 
 # A separate database (see docker-compose.yml), so tests never touch your real jobs.
@@ -45,6 +46,14 @@ def fake_http_client() -> Callable[[], HttpClient]:
     between retries."""
     transport = httpx.MockTransport(_fake_provider_server)
     return lambda: HttpClient(transport=transport, retry_wait=wait_none())
+
+
+@pytest.fixture(scope="session")
+def cv_text_extractor() -> CvTextExtractor:
+    """One for the session: the first file it reads loads the layout model."""
+    if not DOCLING_MODELS.exists():
+        pytest.skip("Docling's models are missing: run `just models`")
+    return CvTextExtractor()
 
 
 def _migrate(database_url: str) -> None:

@@ -8,6 +8,7 @@ Requires [uv](https://docs.astral.sh/uv/), [just](https://github.com/casey/just)
 
 ```sh
 just setup       # create .venv, install deps
+just models      # download Docling's layout models, once (for reading CVs)
 just db-up       # start Postgres (docker compose), with a separate test database
 just db-migrate  # create or update the tables (alembic upgrade head)
 just run-api     # serve the API on http://localhost:8000 (docs at /docs)

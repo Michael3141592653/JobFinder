@@ -8,6 +8,14 @@ default:
 setup:
     uv sync
 
+# download Docling's layout models, once
+models:
+    uv run docling-tools models download
+
+# print a CV (PDF or Word) as the Markdown the LLM reads, e.g. `just cv-markdown ~/cv.pdf`
+cv-markdown file:
+    uv run python scripts/cv_to_markdown.py "{{file}}"
+
 # start Postgres and wait until it accepts connections
 db-up:
     docker compose up -d --wait
@@ -26,7 +34,7 @@ test *args:
 lint:
     uv run ruff check .
     uv run ruff format --check .
-    uv run mypy jobfinder tests
+    uv run mypy jobfinder tests scripts
     uv run sqlfluff lint jobfinder/db/queries
 
 fmt:

@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.0",
+    "docling>=2.138.0",
     "fastapi>=0.143.0",
     "httpx>=0.28.1",
     "langchain-core>=1.6.9",
@@ -23,6 +24,7 @@ dev = [
     "httpx2>=2.13.1",
     "mypy>=2.4.0",
     "pytest",
+    "python-docx>=1.2.0",
     "ruff",
     "sqlfluff>=4.4.0",
 ]
