@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 
 from jobfinder.db.database import Database
-from jobfinder.db.store import JobStore
+from jobfinder.db.job_store import JobStore
 from jobfinder.providers.fetcher import JobFetcher
 from jobfinder.schema import JobSource, JobSourceFetchResult
 

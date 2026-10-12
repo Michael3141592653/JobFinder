@@ -6,7 +6,7 @@ from typing import Self
 import psycopg
 
 from jobfinder.db.cv_store import CvStore
-from jobfinder.db.store import JobStore
+from jobfinder.db.job_store import JobStore
 
 
 class DatabaseSession:

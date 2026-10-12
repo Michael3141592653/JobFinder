@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from psycopg.rows import dict_row
 
-from jobfinder.db.store import JobStore
+from jobfinder.db.job_store import JobStore
 from jobfinder.schema import Job, JobSource, JobSourceFetchResult
 
 pytestmark = pytest.mark.anyio
