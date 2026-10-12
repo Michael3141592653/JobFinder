@@ -3,11 +3,12 @@
 import sys
 from pathlib import Path
 
+from jobfinder.cv.cv_file import CvFile
 from jobfinder.cv.text_extraction import CvTextExtractor
 
 
 def main(cv_path: Path) -> None:
-    print(CvTextExtractor().extract_markdown(cv_path.name, cv_path.read_bytes()))
+    print(CvTextExtractor().extract_markdown(CvFile(cv_path.name, cv_path.read_bytes())))
 
 
 if __name__ == "__main__":

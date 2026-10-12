@@ -10,6 +10,8 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.exceptions import ConversionError
 from docling_core.types.doc import DoclingDocument, NodeItem, TextItem
 
+from jobfinder.cv.cv_file import CvFile
+
 # Where `uv run docling-tools models download` puts them: read locally, never downloaded on use.
 DOCLING_MODELS = settings.cache_dir / "models"
 SUPPORTED_SUFFIXES = {".pdf", ".docx"}
@@ -106,16 +108,16 @@ class CvTextExtractor:
             format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pdf_options)},
         )
 
-    def _convert_to_docling_document(self, file_name: str, file_bytes: bytes) -> DoclingDocument:
-        cv_file = DocumentStream(name=file_name, stream=BytesIO(file_bytes))
+    def _convert_to_docling_document(self, cv_file: CvFile) -> DoclingDocument:
+        document_stream = DocumentStream(name=cv_file.file_name, stream=BytesIO(cv_file.file_bytes))
         try:
-            return self._converter.convert(cv_file).document
+            return self._converter.convert(document_stream).document
         except ConversionError as error:
-            raise CvUnreadableError(file_name) from error
+            raise CvUnreadableError(cv_file.file_name) from error
 
-    def extract_markdown(self, file_name: str, file_bytes: bytes) -> str:
+    def extract_markdown(self, cv_file: CvFile) -> str:
         """The CV as Markdown. CPU work: call it in a thread."""
-        _raise_if_unsupported(file_name)
-        document = self._convert_to_docling_document(file_name, file_bytes)
+        _raise_if_unsupported(cv_file.file_name)
+        document = self._convert_to_docling_document(cv_file)
         _move_dates_onto_their_titles(document)
-        return _export_markdown(document, file_name)
+        return _export_markdown(document, cv_file.file_name)

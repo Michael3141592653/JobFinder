@@ -5,6 +5,7 @@ from typing import Self
 
 import psycopg
 
+from jobfinder.db.cv_store import CvStore
 from jobfinder.db.store import JobStore
 
 
@@ -15,6 +16,7 @@ class DatabaseSession:
     def __init__(self, connection: psycopg.AsyncConnection) -> None:
         self._connection = connection
         self.jobs = JobStore(connection)
+        self.cvs = CvStore(connection)
 
     async def commit(self) -> None:
         await self._connection.commit()

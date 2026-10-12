@@ -78,7 +78,7 @@ def migrated_database_url() -> str:
 @pytest.fixture
 def database_url(migrated_database_url: str) -> str:
     with psycopg.connect(migrated_database_url) as connection:
-        connection.execute("TRUNCATE companies, jobs")
+        connection.execute("TRUNCATE companies, jobs, cvs")
     return migrated_database_url
 
 

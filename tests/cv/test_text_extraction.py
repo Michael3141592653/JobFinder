@@ -4,6 +4,7 @@ from pathlib import Path
 import docx
 import pytest
 
+from jobfinder.cv.cv_file import CvFile
 from jobfinder.cv.text_extraction import (
     DATE_RANGE,
     CvUnreadableError,
@@ -54,7 +55,9 @@ def _docx_with(paragraph: str, table_cell: str) -> bytes:
 
 @pytest.mark.parametrize("file_name", ["cv.pdf", "CV.PDF"])
 def test_extract_markdown_reads_a_pdf_whatever_the_extension_case(cv_text_extractor, file_name):
-    markdown = cv_text_extractor.extract_markdown(file_name, _pdf_with_text("Senior ML Engineer"))
+    markdown = cv_text_extractor.extract_markdown(
+        CvFile(file_name, _pdf_with_text("Senior ML Engineer"))
+    )
 
     assert markdown == "Senior ML Engineer"
 
@@ -78,7 +81,7 @@ def test_extract_markdown_reads_a_pdf_whatever_the_extension_case(cv_text_extrac
 def test_extract_markdown_reads_a_two_column_pdf_one_column_at_a_time(
     cv_text_extractor, block_in_reading_order
 ):
-    markdown = cv_text_extractor.extract_markdown("cv.pdf", TWO_COLUMN_CV.read_bytes())
+    markdown = cv_text_extractor.extract_markdown(CvFile("cv.pdf", TWO_COLUMN_CV.read_bytes()))
 
     assert block_in_reading_order in markdown
 
@@ -94,7 +97,7 @@ def test_extract_markdown_reads_a_two_column_pdf_one_column_at_a_time(
 def test_extract_markdown_puts_right_aligned_dates_back_on_their_title(
     cv_text_extractor, title_with_its_dates
 ):
-    markdown = cv_text_extractor.extract_markdown("cv.pdf", TWO_COLUMN_CV.read_bytes())
+    markdown = cv_text_extractor.extract_markdown(CvFile("cv.pdf", TWO_COLUMN_CV.read_bytes()))
 
     assert title_with_its_dates in markdown
 
@@ -118,7 +121,7 @@ def test_date_range_matches_only_a_whole_date_range(text, expected):
 def test_extract_markdown_reads_docx_paragraphs_and_tables(cv_text_extractor):
     file_bytes = _docx_with("Senior ML Engineer", "Python, PyTorch")
 
-    markdown = cv_text_extractor.extract_markdown("cv.docx", file_bytes)
+    markdown = cv_text_extractor.extract_markdown(CvFile("cv.docx", file_bytes))
 
     assert "Senior ML Engineer" in markdown
     assert "Python, PyTorch" in markdown
@@ -127,14 +130,14 @@ def test_extract_markdown_reads_docx_paragraphs_and_tables(cv_text_extractor):
 @pytest.mark.parametrize("file_name", ["cv.doc", "cv.txt", "cv"])
 def test_extract_markdown_rejects_other_formats(cv_text_extractor, file_name):
     with pytest.raises(UnsupportedCvFormatError, match=r"\.pdf or \.docx"):
-        cv_text_extractor.extract_markdown(file_name, b"anything")
+        cv_text_extractor.extract_markdown(CvFile(file_name, b"anything"))
 
 
 def test_extract_markdown_rejects_a_damaged_file(cv_text_extractor):
     with pytest.raises(CvUnreadableError):
-        cv_text_extractor.extract_markdown("cv.pdf", b"not a pdf")
+        cv_text_extractor.extract_markdown(CvFile("cv.pdf", b"not a pdf"))
 
 
 def test_extract_markdown_rejects_a_file_without_text(cv_text_extractor):
     with pytest.raises(CvWithoutTextError):
-        cv_text_extractor.extract_markdown("blank.pdf", _pdf_with_text(""))
+        cv_text_extractor.extract_markdown(CvFile("blank.pdf", _pdf_with_text("")))
