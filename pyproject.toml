@@ -64,3 +64,4 @@ capitalisation_policy = "upper"
 [tool.mypy]
 plugins = ["pydantic.mypy"]  # knows BaseSettings fields come from the environment
 check_untyped_defs = true  # tests have unannotated fixture arguments
+explicit_package_bases = true  # tests/conftest.py and tests/api/conftest.py are different modules
