@@ -45,7 +45,7 @@ class Publication(BaseModel):
     year: int | None
 
 
-class CvProfile(BaseModel):
+class ParsedCv(BaseModel):
     location: Text | None = Field(description="Where the person lives, if written")
     experiences: list[Experience] = Field(description="Every job, most recent first")
     education: list[Education]

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from jobfinder.cv.profile import Publication, YearMonth
+from jobfinder.cv.parsed_cv import Publication, YearMonth
 
 
 @pytest.mark.parametrize("month", [0, 13])
