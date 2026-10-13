@@ -13,14 +13,10 @@ from jobfinder.cv.cv_parser import CvParser
 from jobfinder.cv.parsed_cv import ParsedCv
 from jobfinder.cv.text_extraction import SUPPORTED_SUFFIXES, CvTextExtractor
 from jobfinder.llm.ollama import OllamaClient
+from jobfinder.settings import LLMSettings
 
 CASES = Path(__file__).parent / "cases"
 GROUND_TRUTH_SUFFIX = ".ground_truth.json"
-
-# ponytail: hard-coded until the OLLAMA_URL, LLM_MODEL and LLM_CONTEXT_LENGTH settings exist
-OLLAMA_URL = "http://localhost:11434"
-LLM_MODEL = "qwen3:8b"
-LLM_CONTEXT_LENGTH = 8192
 
 
 def _find_cv_paths() -> list[Path]:
@@ -48,7 +44,7 @@ def _extract_markdowns(cv_paths: list[Path]) -> list[str]:
 
 async def _parse_markdowns(markdowns: list[str]) -> list[ParsedCv]:
     """In one event loop: the Ollama client's connections belong to the loop that opened them."""
-    cv_parser = CvParser(OllamaClient(OLLAMA_URL, LLM_MODEL, LLM_CONTEXT_LENGTH))
+    cv_parser = CvParser(OllamaClient.from_settings(LLMSettings()))
     return [await cv_parser.parse(markdown) for markdown in markdowns]
 
 

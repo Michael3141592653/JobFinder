@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import cast
+from typing import Self, cast
 
 import httpx
 import ollama
@@ -9,6 +9,7 @@ from langchain_ollama import ChatOllama
 from pydantic import BaseModel, ValidationError
 
 from jobfinder.llm.base import InvalidLLMOutputError, LLMClient, LLMUnavailableError
+from jobfinder.settings import LLMSettings
 
 
 class OllamaClient(LLMClient):
@@ -27,6 +28,10 @@ class OllamaClient(LLMClient):
             client_kwargs={"timeout": httpx.Timeout(10, read=600)},
             async_client_kwargs={"transport": transport} if transport else {},
         )
+
+    @classmethod
+    def from_settings(cls, llm_settings: LLMSettings) -> Self:
+        return cls(llm_settings.ollama_url, llm_settings.llm_model, llm_settings.llm_context_length)
 
     async def generate_structured[OutputModel: BaseModel](
         self,
