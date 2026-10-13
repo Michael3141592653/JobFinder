@@ -24,6 +24,7 @@ class StoredCv(BaseModel):
     file_name: str
     parsed_cv: ParsedCv
     uploaded_at: datetime
+    corrected_at: datetime | None  # None: still as the LLM read it
 
 
 def _to_jsonb(parsed_cv: ParsedCv) -> Jsonb:
@@ -36,14 +37,24 @@ class CvStore:
     def __init__(self, connection: psycopg.AsyncConnection) -> None:
         self._connection = connection
 
-    async def save(self, cv_file: CvFile, markdown: str, parsed_cv: ParsedCv) -> int:
+    async def save(
+        self,
+        cv_file: CvFile,
+        markdown: str,
+        parsed_cv: ParsedCv,
+        prompt_version: int,
+        llm_model: str,
+    ) -> int:
         """Store an uploaded CV and return its id. The file and its text are kept to read it again
-        later, e.g. with a better model, without uploading it again."""
+        later, e.g. with a better model, without uploading it again; the prompt version and the
+        model tell which CVs need it."""
         params = {
             "file_name": cv_file.file_name,
             "file_bytes": cv_file.file_bytes,
             "markdown": markdown,
             "parsed_cv": _to_jsonb(parsed_cv),
+            "prompt_version": prompt_version,
+            "llm_model": llm_model,
         }
         return await fetch_value(self._connection, _SAVE_CV, params)
 

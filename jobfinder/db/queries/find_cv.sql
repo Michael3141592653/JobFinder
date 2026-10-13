@@ -3,7 +3,8 @@ SELECT
     id AS cv_id,
     file_name,
     parsed_cv,
-    uploaded_at
+    uploaded_at,
+    corrected_at
 FROM cvs
 WHERE
     id = %(cv_id)s;
