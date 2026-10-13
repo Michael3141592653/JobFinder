@@ -6,3 +6,5 @@ __pycache__/
 *.db
 .env
 .vscode/
+# your own CVs and their ground truths
+evals/cv_parsing/cases/private/

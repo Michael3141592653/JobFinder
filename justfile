@@ -16,6 +16,10 @@ models:
 cv-markdown file:
     uv run python scripts/cv_to_markdown.py "{{file}}"
 
+# score the CV parser on the golden set in evals/cv_parsing/cases (needs Ollama running)
+eval-cv:
+    uv run python -m evals.cv_parsing
+
 # print what the LLM reads from a CV, e.g. `just parse-cv ~/cv.pdf` (needs Ollama running)
 parse-cv file:
     uv run python scripts/parse_cv.py "{{file}}"
@@ -38,7 +42,7 @@ test *args:
 lint:
     uv run ruff check .
     uv run ruff format --check .
-    uv run mypy jobfinder tests scripts
+    uv run mypy jobfinder tests scripts evals
     uv run sqlfluff lint jobfinder/db/queries
 
 fmt:

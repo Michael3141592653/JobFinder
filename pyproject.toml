@@ -45,6 +45,7 @@ select = ["E", "F", "I", "UP", "B", "PT", "ASYNC", "FAST"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"
+pythonpath = ["."]  # so tests can import evals/, which isn't part of the package
 strict = true
 
 [tool.alembic]

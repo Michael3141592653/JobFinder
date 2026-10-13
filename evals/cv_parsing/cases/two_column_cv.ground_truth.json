@@ -1,0 +1,92 @@
+{
+  "location": "Milan, Italy",
+  "experiences": [
+    {
+      "title": "Senior Machine Learning Engineer",
+      "company": "Zalando",
+      "start": {
+        "year": 2021,
+        "month": 3
+      },
+      "end": null,
+      "description": "Led a team of 4 engineers building the LLM-based product search, serving 2M queries/day. Cut p95 inference latency from 480 ms to 120 ms with distillation and ONNX Runtime. Designed the RAG pipeline for customer support, deflecting 31% of tickets. Introduced offline/online evaluation with A/B tests, shortening model rollouts from 6 to 2 weeks."
+    },
+    {
+      "title": "Machine Learning Engineer",
+      "company": "Satispay",
+      "start": {
+        "year": 2018,
+        "month": 6
+      },
+      "end": {
+        "year": 2021,
+        "month": 2
+      },
+      "description": "Built a real-time fraud detection model (XGBoost + graph features), reducing fraud losses by 22%. Moved training pipelines to Airflow and MLflow, making 40+ models reproducible. Served models with FastAPI on Kubernetes at 3k requests/s."
+    },
+    {
+      "title": "Data Scientist",
+      "company": "Accenture",
+      "start": {
+        "year": 2016,
+        "month": 9
+      },
+      "end": {
+        "year": 2018,
+        "month": 5
+      },
+      "description": "Delivered demand forecasting for a retail client, improving forecast accuracy (MAPE) by 15%. Built churn models and dashboards for two telecom clients."
+    }
+  ],
+  "education": [
+    {
+      "degree": "MSc",
+      "field": "Computer Science",
+      "institution": "Politecnico di Milano",
+      "start_year": 2014,
+      "end_year": 2016,
+      "grade": "110/110 cum laude",
+      "description": "Thesis: Graph neural networks for fraud detection"
+    },
+    {
+      "degree": "BSc",
+      "field": "Computer Engineering",
+      "institution": "University of Pavia",
+      "start_year": 2011,
+      "end_year": 2014,
+      "grade": null,
+      "description": null
+    }
+  ],
+  "publications": [
+    {
+      "title": "Distilling Rankers for Low-Latency Product Search",
+      "venue": "SIGIR Industry Track",
+      "year": 2023
+    }
+  ],
+  "skills": [
+    "PyTorch",
+    "scikit-learn",
+    "Hugging Face Transformers",
+    "LLM fine-tuning (LoRA)",
+    "RAG",
+    "feature engineering",
+    "A/B testing",
+    "Python",
+    "SQL",
+    "Spark",
+    "Airflow",
+    "Docker",
+    "Kubernetes",
+    "FastAPI",
+    "AWS SageMaker",
+    "MLflow",
+    "CI/CD"
+  ],
+  "languages": [
+    "Italian - Native",
+    "English - Fluent (C1)",
+    "Spanish - Intermediate (B1)"
+  ]
+}
