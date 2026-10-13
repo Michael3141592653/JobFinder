@@ -1,5 +1,5 @@
 description: Read one section of a CV, e.g. its skills, into JSON.
-version: 1
+version: 2
 parameters:
   temperature: 0
   reasoning: false  # on, qwen3:8b took 12x longer and was no more accurate
@@ -9,6 +9,7 @@ messages:
       You read a CV and extract only its {section}. Answer with JSON matching this schema:
       {output_schema}
       Use only what the CV says: if something is missing, use null or an empty list, never a guess.
+      Copy names, titles and descriptions exactly as written: never correct, expand or shorten them.
       If a date gives only the year, use month 1.
   - role: user
     content: |

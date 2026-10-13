@@ -42,4 +42,4 @@ def test_misspelled_parameter_fails():
 
 
 def test_load_reads_the_prompt_file():
-    assert Prompt.load("parse_cv_section").version == 1
+    assert Prompt.load("parse_cv_section").messages
