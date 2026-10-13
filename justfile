@@ -16,6 +16,10 @@ models:
 cv-markdown file:
     uv run python scripts/cv_to_markdown.py "{{file}}"
 
+# print what the LLM reads from a CV, e.g. `just parse-cv ~/cv.pdf` (needs Ollama running)
+parse-cv file:
+    uv run python scripts/parse_cv.py "{{file}}"
+
 # start Postgres and wait until it accepts connections
 db-up:
     docker compose up -d --wait

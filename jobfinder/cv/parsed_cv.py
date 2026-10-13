@@ -50,5 +50,8 @@ class ParsedCv(BaseModel):
     experiences: list[Experience] = Field(description="Every job, most recent first")
     education: list[Education]
     publications: list[Publication] = Field(description="Papers and articles; empty if none")
-    skills: list[Text] = Field(description="Technical skills, tools and languages, one per item")
+    skills: list[Text] = Field(
+        description="Technical skills and tools, one per item. Not spoken languages (they have "
+        "their own field), certifications or degrees"
+    )
     languages: list[Text] = Field(description='Spoken languages with level, e.g. "English (C1)"')
